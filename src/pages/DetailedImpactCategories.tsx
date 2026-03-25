@@ -45,10 +45,10 @@ const DetailedImpactCategories: React.FC = () => {
 
     const renderImpactIndicators = (isModal = false) => (
         <ResponsiveContainer width="100%" height="100%">
-            <BarChart data={impactData} layout="vertical" margin={{ top: 20, right: 30, left: 100, bottom: 20 }}>
+            <BarChart data={impactData} layout="vertical" margin={{ top: 20, right: 20, left: 10, bottom: 20 }}>
                 <CartesianGrid strokeDasharray="3 3" horizontal={true} vertical={false} stroke="#F1F3F5" />
-                <XAxis type="number" axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: '#9CA3AF' }} />
-                <YAxis type="category" dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: '#9CA3AF' }} width={120} />
+                <XAxis type="number" axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: '#4B5563', fontWeight: 500 }} />
+                <YAxis type="category" dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: '#4B5563', fontWeight: 500 }} width={160} tickFormatter={(value: string) => value.length > 14 ? value.slice(0, 12) + '..' : value} />
                 <Tooltip />
                 <Legend verticalAlign="bottom" align="center" iconType="square" iconSize={10} wrapperStyle={{ fontSize: '10px', fontWeight: 'bold', paddingTop: '20px' }} />
                 <Bar dataKey="value" radius={[0, 4, 4, 0]} name="Impact Score" barSize={20}>
@@ -64,8 +64,8 @@ const DetailedImpactCategories: React.FC = () => {
         <ResponsiveContainer width="100%" height="100%">
             <BarChart data={categoryComparisonData} margin={{ top: 20, right: 30, left: 20, bottom: 20 }}>
                 <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#F1F3F5" />
-                <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: '#9CA3AF' }} />
-                <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: '#9CA3AF' }} />
+                <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: '#4B5563', fontWeight: 500 }} />
+                <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: '#4B5563', fontWeight: 500 }} />
                 <Tooltip />
                 <Legend verticalAlign="bottom" align="center" iconType="square" iconSize={10} wrapperStyle={{ fontSize: '10px', fontWeight: 'bold', paddingTop: '20px' }} />
                 <Bar dataKey="gwp" fill="#1A5D1A" radius={[4, 4, 0, 0]} name="GWP" />
@@ -81,7 +81,7 @@ const DetailedImpactCategories: React.FC = () => {
                 <DetailedHeader
                     title="Impact Categories - Detailed View"
                     subtitle="Comprehensive overview of environmental impact values across multiple categories"
-                    onBack={() => navigate("/dashboard")}
+                    onBack={() => navigate("/dashboard", { state: { selectedClient: null } })}
                     icon={Activity}
                 />
 

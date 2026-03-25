@@ -138,20 +138,18 @@ const DetailedPCFTrend: React.FC = () => {
         }
         return (
             <ResponsiveContainer width="100%" height="100%">
-                <ComposedChart data={reductionData} margin={{ top: 20, right: 30, left: 20, bottom: 100 }}>
+                <ComposedChart data={reductionData} margin={{ top: 20, right: 20, left: 20, bottom: 25 }}>
                     <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#F1F3F5" />
                     <XAxis
                         dataKey="name"
                         axisLine={false}
                         tickLine={false}
-                        tick={{ fontSize: 9, fill: '#9CA3AF', width: 100 }}
-                        angle={-45}
-                        textAnchor="end"
-                        interval={0}
-                        height={80}
+                        tick={{ fontSize: 9, fill: '#4B5563', fontWeight: 500 }}
+                        interval={Math.max(0, Math.floor(reductionData.length / 15))}
+                        tickFormatter={(value: string) => value.length > 14 ? value.slice(0, 12) + '..' : value}
                     />
-                    <YAxis yAxisId="left" axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: '#9CA3AF' }} />
-                    <YAxis yAxisId="right" orientation="right" axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: '#9CA3AF' }} />
+                    <YAxis yAxisId="left" axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: '#4B5563', fontWeight: 500 }} tickFormatter={(v) => v >= 1000 ? `${(v/1000).toFixed(0)}k` : v} />
+                    <YAxis yAxisId="right" orientation="right" axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: '#4B5563', fontWeight: 500 }} tickFormatter={(v) => `${v}%`} />
                     <Tooltip />
                     <Legend
                         verticalAlign="top"
@@ -177,10 +175,10 @@ const DetailedPCFTrend: React.FC = () => {
         }
         return (
             <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={actualEmissionData} margin={{ top: 20, right: 30, left: 20, bottom: 20 }}>
+                <BarChart data={actualEmissionData} margin={{ top: 20, right: 20, left: 20, bottom: 20 }}>
                     <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#F1F3F5" />
-                    <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: '#9CA3AF' }} />
-                    <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: '#9CA3AF' }} />
+                    <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: '#4B5563', fontWeight: 500 }} interval={0} tickFormatter={(value: string) => value.length > 14 ? value.slice(0, 12) + '..' : value} />
+                    <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: '#4B5563', fontWeight: 500 }} tickFormatter={(v) => v >= 1000 ? `${(v/1000).toFixed(0)}k` : v} />
                     <Tooltip />
                     <Legend verticalAlign="bottom" align="center" iconType="square" iconSize={10} wrapperStyle={{ fontSize: '10px', fontWeight: 'bold', paddingTop: '20px' }} />
                     <Bar dataKey="actual" fill="#52C41A" radius={[4, 4, 0, 0]} name="Actual Emission (kg CO₂e)" />
@@ -199,10 +197,10 @@ const DetailedPCFTrend: React.FC = () => {
         }
         return (
             <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={forecastedEmissionData} margin={{ top: 20, right: 30, left: 20, bottom: 20 }}>
+                <BarChart data={forecastedEmissionData} margin={{ top: 20, right: 20, left: 20, bottom: 20 }}>
                     <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#F1F3F5" />
-                    <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: '#9CA3AF' }} />
-                    <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: '#9CA3AF' }} />
+                    <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: '#4B5563', fontWeight: 500 }} />
+                    <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: '#4B5563', fontWeight: 500 }} tickFormatter={(v) => v >= 1000 ? `${(v/1000).toFixed(0)}k` : v} />
                     <Tooltip />
                     <Legend verticalAlign="bottom" align="center" iconType="square" iconSize={10} wrapperStyle={{ fontSize: '10px', fontWeight: 'bold', paddingTop: '20px' }} />
                     <Bar dataKey="emission" fill="#74D14C" radius={[4, 4, 0, 0]} name="Forecasted Emission (kg CO₂e)" />
@@ -217,7 +215,7 @@ const DetailedPCFTrend: React.FC = () => {
                 <DetailedHeader
                     title="PCF Visualisation Trends"
                     subtitle="Detailed emission insights across life cycle stages"
-                    onBack={() => navigate("/dashboard")}
+                    onBack={() => navigate("/dashboard", { state: { selectedClient } })}
                     icon={LineChartIcon}
                 />
 

@@ -148,21 +148,21 @@ const DetailedWasteEmission: React.FC = () => {
 
         return (
             <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={wasteData} margin={{ top: 20, right: 30, left: 40, bottom: 40 }}>
+                <BarChart data={wasteData} margin={{ top: 20, right: 20, left: 20, bottom: 20 }}>
                     <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#F1F3F5" />
                     <XAxis
                         dataKey="name"
                         axisLine={false}
                         tickLine={false}
-                        tick={{ fontSize: 10, fill: '#9CA3AF' }}
-                        label={{ value: 'Waste Treatment Methods', position: 'insideBottom', offset: -20, fontSize: 12, fontWeight: 'bold' }}
+                        tick={{ fontSize: 10, fill: '#4B5563', fontWeight: 500 }}
+                        interval={0}
+                        tickFormatter={(value: string) => value.length > 14 ? value.slice(0, 12) + '..' : value}
                     />
                     <YAxis
                         axisLine={false}
                         tickLine={false}
-                        tick={{ fontSize: 10, fill: '#9CA3AF' }}
-                        tickFormatter={(value) => value >= 1000 ? `${value / 1000}k` : value}
-                        label={{ value: 'Quantity / Impact', angle: -90, position: 'insideLeft', offset: 0, fontSize: 12, fontWeight: 'bold' }}
+                        tick={{ fontSize: 10, fill: '#4B5563', fontWeight: 500 }}
+                        tickFormatter={(value) => value >= 1000 ? `${(value / 1000).toFixed(0)}k` : value}
                     />
                     <Tooltip />
                     <Legend verticalAlign="bottom" align="center" iconType="square" iconSize={10} wrapperStyle={{ fontSize: '10px', fontWeight: 'bold', paddingTop: '20px' }} />
@@ -179,7 +179,7 @@ const DetailedWasteEmission: React.FC = () => {
                 <DetailedHeader
                     title="Waste Emission Details"
                     subtitle="Comprehensive analysis of emissions caused by waste generation and disposal"
-                    onBack={() => navigate("/dashboard")}
+                    onBack={() => navigate("/dashboard", { state: { selectedClient } })}
                     icon={Trash2}
                 />
 
