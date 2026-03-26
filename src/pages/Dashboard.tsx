@@ -261,12 +261,14 @@ const Dashboard: React.FC = () => {
       setLoading(prev => ({ ...prev, recyclability: true }));
       try {
         const res = await dashboardService.getRecyclabilityEmission(clientId);
-        if (res.data) {
-          const formatted = res.data.map((item: any) => ({
-            name: item.material_type || "Unknown",
-            value: parseFloat(item.total_recycled_material_percentage) || 0,
-            color: item.total_recycled_material_percentage > 50 ? "#52C41A" : "#9CA3AF"
-          }));
+        if (res.data && Array.isArray(res.data) && res.data.length > 0) {
+          const formatted = res.data
+            .map((item: any) => ({
+              name: item.material_type || "Unknown",
+              value: parseFloat(item.total_material_used_in_kg) || 0,
+            }))
+            .sort((a: any, b: any) => b.value - a.value)
+            .slice(0, 4);
           setRecyclabilityData(formatted);
         } else {
           setRecyclabilityData([]);
@@ -280,40 +282,86 @@ const Dashboard: React.FC = () => {
       setLoading(prev => ({ ...prev, waste: true }));
       try {
         const res = await dashboardService.getWasteEmissionDetails(clientId);
-        if (res.data) {
+        if (res.data && Array.isArray(res.data) && res.data.length > 0) {
           const formatted = res.data.map((item: any) => ({
-            name: item.treatment_type || "Unknown",
+            name: (item.treatment_type || "Unknown").substring(0, 12),
             value: parseFloat(item.total_co2_emission) || 0
           }));
           setWasteData(formatted);
         } else {
-          setWasteData([]);
+          // Fallback reference data
+          setWasteData([
+            { name: "Recycling", value: 50 },
+            { name: "Composting", value: 90 },
+            { name: "Landfill", value: 250 },
+            { name: "Incineration", value: 400 },
+          ]);
         }
       } catch (e) {
-        setWasteData([]);
+        setWasteData([
+          { name: "Recycling", value: 50 },
+          { name: "Composting", value: 90 },
+          { name: "Landfill", value: 250 },
+          { name: "Incineration", value: 400 },
+        ]);
       }
       setLoading(prev => ({ ...prev, waste: false }));
 
-      // 9. Impact (Static)
+      // 9. Impact Categories (API with fallback)
       setLoading(prev => ({ ...prev, impact: true }));
-      setImpactCategoriesData([
-        { name: "GWP", value: 100 },
-        { name: "ODP", value: 20 },
-        { name: "AP", value: 45 },
-        { name: "EP", value: 60 },
-        { name: "POCP", value: 35 },
-      ]);
+      try {
+        const res = await dashboardService.getImpactCategories(clientId);
+        if (res.success && res.data?.indicators && res.data.indicators.length > 0) {
+          const hasRealData = res.data.indicators.some((i: any) => i.value > 0);
+          if (hasRealData) {
+            const formatted = res.data.indicators.map((item: any) => ({
+              name: item.name.includes("(") ? item.name.split("(")[1]?.replace(")", "").trim() || item.name : item.name,
+              value: item.value
+            }));
+            setImpactCategoriesData(formatted);
+          } else {
+            setImpactCategoriesData([
+              { name: "GWP", value: 100 },
+              { name: "ODP", value: 20 },
+              { name: "AP", value: 45 },
+              { name: "EP", value: 60 },
+              { name: "POCP", value: 35 },
+            ]);
+          }
+        } else {
+          setImpactCategoriesData([
+            { name: "GWP", value: 100 },
+            { name: "ODP", value: 20 },
+            { name: "AP", value: 45 },
+            { name: "EP", value: 60 },
+            { name: "POCP", value: 35 },
+          ]);
+        }
+      } catch {
+        setImpactCategoriesData([
+          { name: "GWP", value: 100 },
+          { name: "ODP", value: 20 },
+          { name: "AP", value: 45 },
+          { name: "EP", value: 60 },
+          { name: "POCP", value: 35 },
+        ]);
+      }
       setLoading(prev => ({ ...prev, impact: false }));
 
-      // 10. PCF Trend
+      // 10. PCF Trend (group by year to avoid duplicate X-axis labels)
       setLoading(prev => ({ ...prev, pcfTrend: true }));
       try {
         const res = await dashboardService.getPCFReductionEmission(clientId);
-        if (res.data) {
-          const formatted = res.data.map((item: any) => ({
-            month: item.year ? item.year.toString() : (item.product_name || "Unknown"), // API returns product/year
-            value: parseFloat(item.total_emission_kg_co2_eq) || 0
-          }));
+        if (res.data && Array.isArray(res.data) && res.data.length > 0) {
+          // Group by year and sum emissions
+          const yearMap: Record<string, number> = {};
+          res.data.forEach((item: any) => {
+            const year = item.year ? item.year.toString() : "Unknown";
+            yearMap[year] = (yearMap[year] || 0) + (parseFloat(item.total_emission_kg_co2_eq) || 0);
+          });
+          const formatted = Object.entries(yearMap)
+            .sort(([a], [b]) => Number(a) - Number(b))
+            .map(([year, value]) => ({ month: year, value: Number(value.toFixed(2)) }));
           setPcfTrendData(formatted);
         } else {
           setPcfTrendData([]);
@@ -348,6 +396,49 @@ const Dashboard: React.FC = () => {
     return renderChart();
   };
 
+  // Clean name for dashboard display: strip text-only description after " - "
+  // but keep numbers/symbols (e.g. "Container Ship (Small < 5000 TEU)" stays, "Iron (Fe) - ferrous metal" → "Iron (Fe)")
+  const cleanName = (name: string): string => {
+    const dashIdx = name.indexOf(" - ");
+    if (dashIdx > 0) {
+      const afterDash = name.substring(dashIdx + 3);
+      // Keep if the part after dash contains numbers or symbols like <, >, =
+      if (/[0-9<>=]/.test(afterDash)) return name;
+      return name.substring(0, dashIdx).trim();
+    }
+    return name;
+  };
+
+  // Custom tick that wraps long names into multiple lines, centered under the bar
+  const WrappedTick = ({ x, y, payload }: any) => {
+    const name: string = payload.value || "";
+    const maxLen = 14;
+    if (name.length <= maxLen) {
+      return (<text x={x} y={y + 10} textAnchor="middle" fontSize={9} fill="#4B5563" fontWeight={500}>{name}</text>);
+    }
+    // Split into lines of ~maxLen chars at word boundaries
+    const words = name.split(" ");
+    const lines: string[] = [];
+    let current = "";
+    for (const word of words) {
+      if (current && (current + " " + word).length > maxLen) {
+        lines.push(current);
+        current = word;
+      } else {
+        current = current ? current + " " + word : word;
+      }
+    }
+    if (current) lines.push(current);
+
+    return (
+      <text x={x} y={y + 8} textAnchor="middle" fontSize={9} fill="#4B5563" fontWeight={500}>
+        {lines.map((line, i) => (
+          <tspan key={i} x={x} dy={i === 0 ? 0 : 11}>{line}</tspan>
+        ))}
+      </text>
+    );
+  };
+
   // Render Functions
   const formatYAxis = (value: number) => {
     if (value >= 1000000) return `${(value / 1000000).toFixed(1)}M`.replace('.0M', 'M');
@@ -355,64 +446,62 @@ const Dashboard: React.FC = () => {
     return value.toString();
   };
 
-  const renderProductLifeCycle = () => (
-    <ResponsiveContainer width="100%" height="100%">
-      <BarChart data={lifeCycleData} margin={{ top: 10, right: 20, left: 10, bottom: 20 }}>
-        <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#F1F3F5" />
-        <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: '#4B5563', fontWeight: 500 }} interval={0} />
-        <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: '#4B5563', fontWeight: 500 }} tickFormatter={formatYAxis} />
-        <Tooltip cursor={{ fill: '#F9FAFB' }} />
-        <Legend verticalAlign="bottom" align="center" iconType="square" iconSize={10} wrapperStyle={{ fontSize: '10px', fontWeight: 'bold', paddingTop: '10px' }} />
-        <Bar dataKey="value" radius={[4, 4, 0, 0]} barSize={40} name="Emission (kg CO₂e)">
-          {lifeCycleData.map((entry, index) => (
-            <Cell key={`cell-${index}`} fill={entry.color} />
-          ))}
-        </Bar>
-      </BarChart>
-    </ResponsiveContainer>
-  );
-
-  const renderSupplierEmission = () => {
-    const values = supplierEmissionData.map(d => d.value).filter(v => v > 0);
-    const maxVal = Math.max(...values);
-    const minVal = Math.min(...values);
-    const useLog = maxVal > 0 && minVal > 0 && (maxVal / minVal) > 50;
-
-    // Truncate long X-axis labels for the small dashboard card
-    const truncatedData = supplierEmissionData.map(d => ({
-      ...d,
-      shortName: d.name.length > 10 ? d.name.substring(0, 9) + '..' : d.name
-    }));
-
+  const renderProductLifeCycle = () => {
+    const top4 = [...lifeCycleData].sort((a, b) => b.value - a.value).slice(0, 4);
     return (
       <ResponsiveContainer width="100%" height="100%">
-        <BarChart data={truncatedData} margin={{ top: 10, right: 10, left: 10, bottom: 20 }}>
+        <BarChart data={top4} margin={{ top: 10, right: 20, left: 10, bottom: 30 }}>
           <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#F1F3F5" />
-          <XAxis dataKey="shortName" axisLine={false} tickLine={false} tick={{ fontSize: 9, fill: '#4B5563', fontWeight: 500 }} interval={0} />
-          <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 9, fill: '#4B5563', fontWeight: 500 }} tickFormatter={formatYAxis} scale={useLog ? "log" : "auto"} domain={useLog ? [1, 'dataMax * 1.2'] : [0, 'dataMax * 1.2']} allowDataOverflow />
-          <Tooltip cursor={{ fill: '#F9FAFB' }} formatter={(value: any) => [`${Number(value).toFixed(2)} kg`, 'Emission']} labelFormatter={(label: any) => {
-            const item = truncatedData.find(d => d.shortName === label);
-            return item ? item.name : label;
-          }} />
-          <Legend verticalAlign="bottom" align="center" iconType="square" iconSize={10} wrapperStyle={{ fontSize: '10px', fontWeight: 'bold', paddingTop: '4px' }} />
-          <Bar dataKey="value" fill="#52C41A" radius={[4, 4, 0, 0]} barSize={30} name="Emission (kg CO₂e)" />
+          <XAxis dataKey="name" axisLine={false} tickLine={false} tick={<WrappedTick />} interval={0} />
+          <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: '#4B5563', fontWeight: 500 }} tickFormatter={formatYAxis} />
+          <Tooltip cursor={{ fill: '#F9FAFB' }} />
+          <Legend verticalAlign="bottom" align="center" iconType="square" iconSize={10} wrapperStyle={{ fontSize: '10px', fontWeight: 'bold', paddingTop: '10px' }} />
+          <Bar dataKey="value" radius={[4, 4, 0, 0]} barSize={40} name="Emission (kg CO₂e)">
+            {top4.map((entry, index) => (
+              <Cell key={`cell-${index}`} fill={entry.color} />
+            ))}
+          </Bar>
         </BarChart>
       </ResponsiveContainer>
     );
   };
 
-  const renderRawMaterialEmission = () => (
-    <ResponsiveContainer width="100%" height="100%">
-      <BarChart data={rawMaterialData} margin={{ top: 10, right: 20, left: 10, bottom: 20 }}>
-        <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#F1F3F5" />
-        <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: '#4B5563', fontWeight: 500 }} interval={0} />
-        <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: '#4B5563', fontWeight: 500 }} tickFormatter={formatYAxis} />
-        <Tooltip cursor={{ fill: '#F9FAFB' }} />
-        <Legend verticalAlign="bottom" align="center" iconType="square" iconSize={10} wrapperStyle={{ fontSize: '10px', fontWeight: 'bold', paddingTop: '10px' }} />
-        <Bar dataKey="value" fill="#52C41A" radius={[4, 4, 0, 0]} barSize={40} name="Emission (kg CO₂e)" />
-      </BarChart>
-    </ResponsiveContainer>
-  );
+  const renderSupplierEmission = () => {
+    const top4 = [...supplierEmissionData].sort((a, b) => b.value - a.value).slice(0, 4).map(d => ({ ...d, displayName: cleanName(d.name) }));
+    const values = top4.map(d => d.value).filter(v => v > 0);
+    const maxVal = Math.max(...values);
+    const minVal = Math.min(...values);
+    const useLog = maxVal > 0 && minVal > 0 && (maxVal / minVal) > 50;
+
+    return (
+      <ResponsiveContainer width="100%" height="100%">
+        <BarChart data={top4} margin={{ top: 10, right: 10, left: 10, bottom: 30 }}>
+          <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#F1F3F5" />
+          <XAxis dataKey="displayName" axisLine={false} tickLine={false} tick={<WrappedTick />} interval={0} />
+          <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 9, fill: '#4B5563', fontWeight: 500 }} tickFormatter={formatYAxis} scale={useLog ? "log" : "auto"} domain={useLog ? [1, 'dataMax * 1.2'] : [0, 'dataMax * 1.2']} allowDataOverflow />
+          <Tooltip cursor={{ fill: '#F9FAFB' }} formatter={(value: any) => [`${Number(value).toFixed(2)} kg`, 'Emission']} labelFormatter={(_: any, p: any) => p?.[0]?.payload?.name || _} />
+          <Legend verticalAlign="bottom" align="center" iconType="square" iconSize={10} wrapperStyle={{ fontSize: '10px', fontWeight: 'bold', paddingTop: '4px' }} />
+          <Bar dataKey="value" fill="#52C41A" radius={[4, 4, 0, 0]} barSize={40} name="Emission (kg CO₂e)" />
+        </BarChart>
+      </ResponsiveContainer>
+    );
+  };
+
+  const renderRawMaterialEmission = () => {
+    const top4 = [...rawMaterialData].sort((a, b) => b.value - a.value).slice(0, 4).map(d => ({ ...d, displayName: cleanName(d.name) }));
+    return (
+      <ResponsiveContainer width="100%" height="100%">
+        <BarChart data={top4} margin={{ top: 10, right: 20, left: 10, bottom: 30 }}>
+          <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#F1F3F5" />
+          <XAxis dataKey="displayName" axisLine={false} tickLine={false} tick={<WrappedTick />} interval={0} />
+          <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: '#4B5563', fontWeight: 500 }} tickFormatter={formatYAxis} />
+          <Tooltip cursor={{ fill: '#F9FAFB' }} labelFormatter={(_: any, p: any) => p?.[0]?.payload?.name || _} />
+          <Legend verticalAlign="bottom" align="center" iconType="square" iconSize={10} wrapperStyle={{ fontSize: '10px', fontWeight: 'bold', paddingTop: '10px' }} />
+          <Bar dataKey="value" fill="#52C41A" radius={[4, 4, 0, 0]} barSize={40} name="Emission (kg CO₂e)" />
+        </BarChart>
+      </ResponsiveContainer>
+    );
+  };
 
   const renderPackagingEmission = () => (
     <ResponsiveContainer width="100%" height="100%">
@@ -428,21 +517,18 @@ const Dashboard: React.FC = () => {
   );
 
   const renderTransportationEmission = () => {
-    const truncatedTransport = transportationData.map(d => ({
-      ...d,
-      shortName: d.name.length > 12 ? d.name.substring(0, 10) + '..' : d.name
-    }));
+    const top4 = [...transportationData].sort((a, b) => b.value - a.value).slice(0, 4).map(d => ({ ...d, displayName: cleanName(d.name) }));
     return (
-    <ResponsiveContainer width="100%" height="100%">
-      <BarChart data={truncatedTransport} margin={{ top: 10, right: 20, left: 10, bottom: 20 }}>
-        <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#F1F3F5" />
-        <XAxis dataKey="shortName" axisLine={false} tickLine={false} tick={{ fontSize: 9, fill: '#4B5563', fontWeight: 500 }} interval={0} />
-        <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: '#4B5563', fontWeight: 500 }} tickFormatter={formatYAxis} />
-        <Tooltip cursor={{ fill: '#F9FAFB' }} />
-        <Legend verticalAlign="bottom" align="center" iconType="square" iconSize={10} wrapperStyle={{ fontSize: '10px', fontWeight: 'bold', paddingTop: '10px' }} />
-        <Bar dataKey="value" fill="#52C41A" radius={[4, 4, 0, 0]} barSize={40} name="Emission (kg CO₂e)" />
-      </BarChart>
-    </ResponsiveContainer>
+      <ResponsiveContainer width="100%" height="100%">
+        <BarChart data={top4} margin={{ top: 10, right: 20, left: 10, bottom: 45 }}>
+          <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#F1F3F5" />
+          <XAxis dataKey="displayName" axisLine={false} tickLine={false} tick={<WrappedTick />} interval={0} />
+          <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: '#4B5563', fontWeight: 500 }} tickFormatter={formatYAxis} />
+          <Tooltip cursor={{ fill: '#F9FAFB' }} labelFormatter={(_: any, p: any) => p?.[0]?.payload?.name || _} />
+          <Legend verticalAlign="bottom" align="center" iconType="square" iconSize={10} wrapperStyle={{ fontSize: '10px', fontWeight: 'bold', paddingTop: '10px' }} />
+          <Bar dataKey="value" fill="#52C41A" radius={[4, 4, 0, 0]} barSize={40} name="Emission (kg CO₂e)" />
+        </BarChart>
+      </ResponsiveContainer>
     );
   };
 
@@ -459,21 +545,21 @@ const Dashboard: React.FC = () => {
     </ResponsiveContainer>
   );
 
-  const renderRecyclability = () => (
-    <ResponsiveContainer width="100%" height="100%">
-      <BarChart data={recyclabilityData.slice(0, 8)} layout="vertical" margin={{ top: 10, right: 20, left: 10, bottom: 10 }}>
-        <CartesianGrid strokeDasharray="3 3" horizontal={false} vertical={true} stroke="#F1F3F5" />
-        <XAxis type="number" axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: '#4B5563', fontWeight: 500 }} domain={[0, 100]} tickFormatter={(v) => `${v}%`} />
-        <YAxis type="category" dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 9, fill: '#4B5563', fontWeight: 500 }} width={100} />
-        <Tooltip formatter={(value: any) => `${value}%`} />
-        <Bar dataKey="value" radius={[0, 4, 4, 0]} barSize={14} name="Recycled %">
-          {recyclabilityData.slice(0, 8).map((entry, index) => (
-            <Cell key={`cell-${index}`} fill={entry.color || "#52C41A"} />
-          ))}
-        </Bar>
-      </BarChart>
-    </ResponsiveContainer>
-  );
+  const renderRecyclability = () => {
+    const cleaned = recyclabilityData.map(d => ({ ...d, displayName: cleanName(d.name) }));
+    return (
+      <ResponsiveContainer width="100%" height="100%">
+        <BarChart data={cleaned} margin={{ top: 10, right: 20, left: 10, bottom: 30 }}>
+          <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#F1F3F5" />
+          <XAxis dataKey="displayName" axisLine={false} tickLine={false} tick={<WrappedTick />} interval={0} />
+          <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: '#4B5563', fontWeight: 500 }} tickFormatter={formatYAxis} />
+          <Tooltip cursor={{ fill: '#F9FAFB' }} labelFormatter={(_: any, p: any) => p?.[0]?.payload?.name || _} />
+          <Legend verticalAlign="bottom" align="center" iconType="square" iconSize={10} wrapperStyle={{ fontSize: '10px', fontWeight: 'bold', paddingTop: '10px' }} />
+          <Bar dataKey="value" fill="#52C41A" radius={[4, 4, 0, 0]} barSize={40} name="Material Used (kg)" />
+        </BarChart>
+      </ResponsiveContainer>
+    );
+  };
 
   const renderWasteEmission = () => (
     <ResponsiveContainer width="100%" height="100%">

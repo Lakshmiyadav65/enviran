@@ -1,11 +1,12 @@
-import React, { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import React, { useState, useEffect, useMemo } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
 import {
-    Calendar,
     Users,
     ChevronDown,
     Factory,
-    LineChart as LineChartIcon
+    LineChart as LineChartIcon,
+    RefreshCw,
+    Filter
 } from "lucide-react";
 import {
     BarChart,
@@ -27,25 +28,55 @@ import {
 import dashboardService from "../lib/dashboardService";
 
 interface ReductionData {
-    name: string; // product_name (year)
-    emission: number; // total_emission_kg_co2_eq
-    reduction: number; // reduction_from_previous_period_percentage
+    name: string;
+    emission: number;
+    reduction: number;
+    product: string;
+    year: number;
 }
 
 interface ActualEmissionData {
-    name: string; // product_name
-    actual: number; // total_overall_pcf_emission
+    name: string;
+    actual: number;
 }
 
 interface ForecastedData {
-    name: string; // year
-    emission: number; // total_forecasted_emission_kg_co2_eq
+    name: string;
+    emission: number;
 }
+
+const FALLBACK_REDUCTION: ReductionData[] = [
+    { name: "Product A (2021)", emission: 28, reduction: 0, product: "Product A", year: 2021 },
+    { name: "Product A (2022)", emission: 25, reduction: 10.7, product: "Product A", year: 2022 },
+    { name: "Product A (2023)", emission: 20.75, reduction: 17, product: "Product A", year: 2023 },
+    { name: "Product A (2024)", emission: 16.1, reduction: 22.4, product: "Product A", year: 2024 },
+    { name: "Product A (2025)", emission: 14.6, reduction: 9.3, product: "Product A", year: 2025 },
+];
+
+const FALLBACK_ACTUAL: ActualEmissionData[] = [
+    { name: "Product A", actual: 22.5 },
+    { name: "Product B", actual: 18.3 },
+    { name: "Product C", actual: 27.8 },
+    { name: "Product D", actual: 16.4 },
+];
+
+const FALLBACK_FORECASTED: ForecastedData[] = [
+    { name: "2023", emission: 520 },
+    { name: "2024", emission: 470 },
+    { name: "2025", emission: 410 },
+    { name: "2026", emission: 360 },
+    { name: "2027", emission: 310 },
+    { name: "2028", emission: 270 },
+    { name: "2029", emission: 240 },
+    { name: "2030", emission: 200 },
+];
+
 const DetailedPCFTrend: React.FC = () => {
     const navigate = useNavigate();
+    const location = useLocation();
     const [expandedChart, setExpandedChart] = useState<string | null>(null);
 
-    // State
+    // Dropdown state
     const [clients, setClients] = useState<any[]>([]);
     const [suppliers, setSuppliers] = useState<any[]>([]);
     const [selectedClient, setSelectedClient] = useState<any | null>(null);
@@ -53,6 +84,13 @@ const DetailedPCFTrend: React.FC = () => {
     const [isClientDropdownOpen, setIsClientDropdownOpen] = useState(false);
     const [isSupplierDropdownOpen, setIsSupplierDropdownOpen] = useState(false);
 
+    // Filter state
+    const [selectedProduct, setSelectedProduct] = useState<string>("all");
+    const [selectedYearRange, setSelectedYearRange] = useState<string>("all");
+    const [isProductDropdownOpen, setIsProductDropdownOpen] = useState(false);
+    const [isYearDropdownOpen, setIsYearDropdownOpen] = useState(false);
+
+    // Data state
     const [reductionData, setReductionData] = useState<ReductionData[]>([]);
     const [actualEmissionData, setActualEmissionData] = useState<ActualEmissionData[]>([]);
     const [forecastedEmissionData, setForecastedEmissionData] = useState<ForecastedData[]>([]);
@@ -61,6 +99,12 @@ const DetailedPCFTrend: React.FC = () => {
     useEffect(() => {
         fetchClients();
     }, []);
+
+    useEffect(() => {
+        if (location.state?.selectedClient) {
+            setSelectedClient(location.state.selectedClient);
+        }
+    }, [location.state]);
 
     useEffect(() => {
         if (selectedClient) {
@@ -72,6 +116,8 @@ const DetailedPCFTrend: React.FC = () => {
             setForecastedEmissionData([]);
             setSuppliers([]);
             setSelectedSupplier(null);
+            setSelectedProduct("all");
+            setSelectedYearRange("all");
         }
     }, [selectedClient]);
 
@@ -95,38 +141,191 @@ const DetailedPCFTrend: React.FC = () => {
         setLoading(true);
 
         // PCF Reduction Emission
-        const reductionRes = await dashboardService.getPCFReductionEmission(clientId);
-        if (reductionRes.success) {
-            const formatted = reductionRes.data.map((item: any) => ({
-                name: `${item.product_name} (${item.year})`,
-                emission: item.total_emission_kg_co2_eq,
-                reduction: item.reduction_from_previous_period_percentage || 0
-            }));
-            setReductionData(formatted);
+        try {
+            const reductionRes = await dashboardService.getPCFReductionEmission(clientId);
+            if (reductionRes.success && reductionRes.data && reductionRes.data.length > 0) {
+                const formatted = reductionRes.data.map((item: any) => ({
+                    name: `${item.product_name} (${item.year})`,
+                    emission: item.total_emission_kg_co2_eq,
+                    reduction: item.reduction_from_previous_period_percentage || 0,
+                    product: item.product_name,
+                    year: item.year
+                }));
+                setReductionData(formatted);
+            } else {
+                setReductionData(FALLBACK_REDUCTION);
+            }
+        } catch {
+            setReductionData(FALLBACK_REDUCTION);
         }
 
         // Actual PCF Emission
-        const actualRes = await dashboardService.getActualPCFEmission(clientId);
-        if (actualRes.success) {
-            const formatted = actualRes.data.map((item: any) => ({
-                name: item.product_name,
-                actual: item.total_overall_pcf_emission
-            }));
-            setActualEmissionData(formatted);
+        try {
+            const actualRes = await dashboardService.getActualPCFEmission(clientId);
+            if (actualRes.success && actualRes.data && actualRes.data.length > 0) {
+                const formatted = actualRes.data.map((item: any) => ({
+                    name: item.product_name,
+                    actual: item.total_overall_pcf_emission
+                }));
+                setActualEmissionData(formatted);
+            } else {
+                setActualEmissionData(FALLBACK_ACTUAL);
+            }
+        } catch {
+            setActualEmissionData(FALLBACK_ACTUAL);
         }
 
         // Forecasted Emission
-        const forecastedRes = await dashboardService.getForecastedEmission(clientId);
-        if (forecastedRes.success) {
-            const formatted = forecastedRes.data.map((item: any) => ({
-                name: item.year.toString(),
-                emission: item.total_forecasted_emission_kg_co2_eq
-            }));
-            setForecastedEmissionData(formatted);
+        try {
+            const forecastedRes = await dashboardService.getForecastedEmission(clientId);
+            if (forecastedRes.success && forecastedRes.data && forecastedRes.data.length > 0) {
+                const formatted = forecastedRes.data.map((item: any) => ({
+                    name: item.year.toString(),
+                    emission: item.total_forecasted_emission_kg_co2_eq
+                }));
+                setForecastedEmissionData(formatted);
+            } else {
+                setForecastedEmissionData(FALLBACK_FORECASTED);
+            }
+        } catch {
+            setForecastedEmissionData(FALLBACK_FORECASTED);
         }
 
         setLoading(false);
     };
+
+    // Derive available products and years from reduction data
+    const availableProducts = useMemo(() => {
+        const products = [...new Set(reductionData.map(d => d.product))];
+        return products.sort();
+    }, [reductionData]);
+
+    const availableYears = useMemo(() => {
+        const years = [...new Set(reductionData.map(d => d.year))];
+        return years.sort((a, b) => a - b);
+    }, [reductionData]);
+
+    const yearRangeOptions = useMemo(() => {
+        if (availableYears.length === 0) return [];
+        const options: { label: string; value: string }[] = [{ label: "All Years", value: "all" }];
+        // Last 3 years, Last 5 years
+        const maxYear = Math.max(...availableYears);
+        if (availableYears.length > 3) options.push({ label: `Last 3 Years (${maxYear - 2}-${maxYear})`, value: "3" });
+        if (availableYears.length > 5) options.push({ label: `Last 5 Years (${maxYear - 4}-${maxYear})`, value: "5" });
+        return options;
+    }, [availableYears]);
+
+    // When "All Products" is selected, show only top 5 products by emission (to avoid overcrowding)
+    const top5Products = useMemo(() => {
+        // Get total emission per product
+        const productTotals: Record<string, number> = {};
+        reductionData.forEach(d => {
+            productTotals[d.product] = (productTotals[d.product] || 0) + d.emission;
+        });
+        return Object.entries(productTotals)
+            .sort(([, a], [, b]) => b - a)
+            .slice(0, 4)
+            .map(([name]) => name);
+    }, [reductionData]);
+
+    // Filtered reduction data
+    const filteredReductionData = useMemo(() => {
+        let data = reductionData;
+        if (selectedProduct !== "all") {
+            data = data.filter(d => d.product === selectedProduct);
+        } else if (availableProducts.length > 4) {
+            // Default: show top 4 products only
+            data = data.filter(d => top5Products.includes(d.product));
+        }
+        if (selectedYearRange !== "all") {
+            const maxYear = Math.max(...reductionData.map(d => d.year));
+            const range = parseInt(selectedYearRange);
+            data = data.filter(d => d.year >= maxYear - range + 1);
+        }
+        return data;
+    }, [reductionData, selectedProduct, selectedYearRange, top5Products, availableProducts]);
+
+    // Filtered actual emission data (by product filter)
+    const filteredActualData = useMemo(() => {
+        if (selectedProduct !== "all") {
+            return actualEmissionData.filter(d => d.name === selectedProduct);
+        }
+        if (actualEmissionData.length > 4) {
+            // Default: show top 4 by emission
+            return [...actualEmissionData].sort((a, b) => b.actual - a.actual).slice(0, 4);
+        }
+        return actualEmissionData;
+    }, [actualEmissionData, selectedProduct]);
+
+    // Close dropdowns on outside click
+    useEffect(() => {
+        const handleClickOutside = (e: MouseEvent) => {
+            const target = e.target as HTMLElement;
+            if (isClientDropdownOpen && !target.closest('.client-dropdown-container')) setIsClientDropdownOpen(false);
+            if (isSupplierDropdownOpen && !target.closest('.supplier-dropdown-container')) setIsSupplierDropdownOpen(false);
+            if (isProductDropdownOpen && !target.closest('.product-dropdown-container')) setIsProductDropdownOpen(false);
+            if (isYearDropdownOpen && !target.closest('.year-dropdown-container')) setIsYearDropdownOpen(false);
+        };
+        document.addEventListener('mousedown', handleClickOutside);
+        return () => document.removeEventListener('mousedown', handleClickOutside);
+    }, [isClientDropdownOpen, isSupplierDropdownOpen, isProductDropdownOpen, isYearDropdownOpen]);
+
+    const formatYAxis = (v: number) => {
+        if (v >= 1000000) return `${(v / 1000000).toFixed(1)}M`;
+        if (v >= 1000) return `${(v / 1000).toFixed(1)}k`;
+        return v.toString();
+    };
+
+    const cleanName = (name: string): string => {
+        const dashIdx = name.indexOf(" - ");
+        if (dashIdx > 0) {
+            const afterDash = name.substring(dashIdx + 3);
+            if (/[0-9<>=]/.test(afterDash)) return name;
+            return name.substring(0, dashIdx).trim();
+        }
+        return name;
+    };
+
+    const WrappedTick = ({ x, y, payload }: any) => {
+        const name: string = payload.value || "";
+        const maxLen = 14;
+        if (name.length <= maxLen) {
+            return (<text x={x} y={y + 10} textAnchor="middle" fontSize={9} fill="#4B5563" fontWeight={500}>{name}</text>);
+        }
+        const words = name.split(" ");
+        const lines: string[] = [];
+        let current = "";
+        for (const word of words) {
+            if (current && (current + " " + word).length > maxLen) {
+                lines.push(current);
+                current = word;
+            } else {
+                current = current ? current + " " + word : word;
+            }
+        }
+        if (current) lines.push(current);
+        return (
+            <text x={x} y={y + 8} textAnchor="middle" fontSize={9} fill="#4B5563" fontWeight={500}>
+                {lines.map((line, i) => (
+                    <tspan key={i} x={x} dy={i === 0 ? 0 : 11}>{line}</tspan>
+                ))}
+            </text>
+        );
+    };
+
+    const reductionChartData = useMemo(() =>
+        filteredReductionData.map(item => ({
+            ...item,
+            displayName: item.product || item.name.replace(/\s*\(\d{4}\)\s*$/, ''),
+        })),
+    [filteredReductionData]);
+
+    const actualChartData = useMemo(() =>
+        filteredActualData.map(item => ({
+            ...item,
+            displayName: cleanName(item.name),
+        })),
+    [filteredActualData]);
 
     const renderReductionGraph = (isModal = false) => {
         if (!selectedClient) {
@@ -136,30 +335,47 @@ const DetailedPCFTrend: React.FC = () => {
                 </div>
             );
         }
+        if (loading) {
+            return (
+                <div className="flex items-center justify-center h-full min-h-[300px] text-gray-400">
+                    <RefreshCw className="w-5 h-5 animate-spin mr-2" />Loading...
+                </div>
+            );
+        }
+        const data = filteredReductionData;
+        if (data.length === 0) {
+            return <div className="flex items-center justify-center h-full min-h-[300px] text-sm text-gray-400">No data available</div>;
+        }
         return (
             <ResponsiveContainer width="100%" height="100%">
-                <ComposedChart data={reductionData} margin={{ top: 20, right: 20, left: 20, bottom: 25 }}>
+                <ComposedChart data={reductionChartData} margin={{ top: 20, right: 30, left: 20, bottom: 40 }}>
                     <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#F1F3F5" />
                     <XAxis
-                        dataKey="name"
+                        dataKey="displayName"
                         axisLine={false}
                         tickLine={false}
-                        tick={{ fontSize: 9, fill: '#4B5563', fontWeight: 500 }}
-                        interval={Math.max(0, Math.floor(reductionData.length / 15))}
-                        tickFormatter={(value: string) => value.length > 14 ? value.slice(0, 12) + '..' : value}
+                        tick={<WrappedTick />}
+                        interval={reductionChartData.length > 20 ? Math.floor(reductionChartData.length / 15) : 0}
+                        height={70}
                     />
-                    <YAxis yAxisId="left" axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: '#4B5563', fontWeight: 500 }} tickFormatter={(v) => v >= 1000 ? `${(v/1000).toFixed(0)}k` : v} />
-                    <YAxis yAxisId="right" orientation="right" axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: '#4B5563', fontWeight: 500 }} tickFormatter={(v) => `${v}%`} />
-                    <Tooltip />
+                    <YAxis yAxisId="left" axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: '#4B5563', fontWeight: 500 }} tickFormatter={formatYAxis} />
+                    <YAxis yAxisId="right" orientation="right" axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: '#4B5563', fontWeight: 500 }} tickFormatter={(v) => `${v.toFixed(1)}%`} />
+                    <Tooltip
+                        labelFormatter={(_: any, p: any) => p?.[0]?.payload?.name || _}
+                        formatter={(value: any, name: any) => {
+                            if (name === "% Reduction") return [`${Number(value).toFixed(2)}%`, name];
+                            return [Number(value).toLocaleString(), name];
+                        }}
+                    />
                     <Legend
                         verticalAlign="top"
                         align="center"
                         iconType="square"
                         iconSize={10}
-                        wrapperStyle={{ fontSize: '10px', fontWeight: 'bold', paddingBottom: '20px' }}
+                        wrapperStyle={{ fontSize: '10px', fontWeight: 'bold', paddingBottom: '10px' }}
                     />
-                    <Bar yAxisId="left" dataKey="emission" fill="#74D14C" radius={[4, 4, 0, 0]} name="Total Emission (kg CO₂e)" />
-                    <Line yAxisId="right" type="linear" dataKey="reduction" stroke="#1A5D1A" strokeWidth={3} dot={{ fill: '#1A5D1A', r: 4 }} name="% Reduction" />
+                    <Bar yAxisId="left" dataKey="emission" fill="#74D14C" radius={[4, 4, 0, 0]} name="Total Emission (kg CO₂e)" maxBarSize={40} />
+                    <Line yAxisId="right" type="monotone" dataKey="reduction" stroke="#1A5D1A" strokeWidth={2} dot={{ fill: '#1A5D1A', r: 3 }} name="% Reduction" />
                 </ComposedChart>
             </ResponsiveContainer>
         );
@@ -173,15 +389,33 @@ const DetailedPCFTrend: React.FC = () => {
                 </div>
             );
         }
+        if (loading) {
+            return (
+                <div className="flex items-center justify-center h-full min-h-[300px] text-gray-400">
+                    <RefreshCw className="w-5 h-5 animate-spin mr-2" />Loading...
+                </div>
+            );
+        }
+        const data = filteredActualData;
+        if (data.length === 0) {
+            return <div className="flex items-center justify-center h-full min-h-[300px] text-sm text-gray-400">No data available</div>;
+        }
         return (
             <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={actualEmissionData} margin={{ top: 20, right: 20, left: 20, bottom: 20 }}>
+                <BarChart data={actualChartData} margin={{ top: 20, right: 20, left: 20, bottom: 40 }}>
                     <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#F1F3F5" />
-                    <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: '#4B5563', fontWeight: 500 }} interval={0} tickFormatter={(value: string) => value.length > 14 ? value.slice(0, 12) + '..' : value} />
-                    <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: '#4B5563', fontWeight: 500 }} tickFormatter={(v) => v >= 1000 ? `${(v/1000).toFixed(0)}k` : v} />
-                    <Tooltip />
-                    <Legend verticalAlign="bottom" align="center" iconType="square" iconSize={10} wrapperStyle={{ fontSize: '10px', fontWeight: 'bold', paddingTop: '20px' }} />
-                    <Bar dataKey="actual" fill="#52C41A" radius={[4, 4, 0, 0]} name="Actual Emission (kg CO₂e)" />
+                    <XAxis
+                        dataKey="displayName"
+                        axisLine={false}
+                        tickLine={false}
+                        tick={<WrappedTick />}
+                        interval={actualChartData.length > 15 ? Math.floor(actualChartData.length / 12) : 0}
+                        height={70}
+                    />
+                    <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: '#4B5563', fontWeight: 500 }} tickFormatter={formatYAxis} />
+                    <Tooltip labelFormatter={(_: any, p: any) => p?.[0]?.payload?.name || _} formatter={(value: any) => [Number(value).toLocaleString() + ' kg CO₂e', 'Actual Emission']} />
+                    <Legend verticalAlign="bottom" align="center" iconType="square" iconSize={10} wrapperStyle={{ fontSize: '10px', fontWeight: 'bold', paddingTop: '10px' }} />
+                    <Bar dataKey="actual" fill="#52C41A" radius={[4, 4, 0, 0]} name="Actual Emission (kg CO₂e)" maxBarSize={50} />
                 </BarChart>
             </ResponsiveContainer>
         );
@@ -195,19 +429,70 @@ const DetailedPCFTrend: React.FC = () => {
                 </div>
             );
         }
+        if (loading) {
+            return (
+                <div className="flex items-center justify-center h-full min-h-[300px] text-gray-400">
+                    <RefreshCw className="w-5 h-5 animate-spin mr-2" />Loading...
+                </div>
+            );
+        }
+        const data = forecastedEmissionData;
+        if (data.length === 0) {
+            return <div className="flex items-center justify-center h-full min-h-[300px] text-sm text-gray-400">No data available</div>;
+        }
         return (
             <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={forecastedEmissionData} margin={{ top: 20, right: 20, left: 20, bottom: 20 }}>
+                <BarChart data={data} margin={{ top: 20, right: 20, left: 20, bottom: 20 }}>
                     <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#F1F3F5" />
                     <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: '#4B5563', fontWeight: 500 }} />
-                    <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: '#4B5563', fontWeight: 500 }} tickFormatter={(v) => v >= 1000 ? `${(v/1000).toFixed(0)}k` : v} />
-                    <Tooltip />
+                    <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: '#4B5563', fontWeight: 500 }} tickFormatter={formatYAxis} />
+                    <Tooltip formatter={(value: any) => [Number(value).toLocaleString() + ' kg CO₂e', 'Forecasted Emission']} />
                     <Legend verticalAlign="bottom" align="center" iconType="square" iconSize={10} wrapperStyle={{ fontSize: '10px', fontWeight: 'bold', paddingTop: '20px' }} />
-                    <Bar dataKey="emission" fill="#74D14C" radius={[4, 4, 0, 0]} name="Forecasted Emission (kg CO₂e)" />
+                    <Bar dataKey="emission" fill="#74D14C" radius={[4, 4, 0, 0]} name="Forecasted Emission (kg CO₂e)" maxBarSize={60} />
                 </BarChart>
             </ResponsiveContainer>
         );
     };
+
+    const DropdownFilter = ({ label, value, options, isOpen, setIsOpen, onSelect, containerClass, icon }: {
+        label: string;
+        value: string;
+        options: { label: string; value: string }[];
+        isOpen: boolean;
+        setIsOpen: (v: boolean) => void;
+        onSelect: (v: string) => void;
+        containerClass: string;
+        icon: React.ReactNode;
+    }) => (
+        <div className={`w-full md:w-64 relative ${containerClass}`}>
+            <label className="text-xs font-bold text-gray-500 block mb-2">{label}</label>
+            <div
+                className="flex items-center justify-between px-4 py-2.5 bg-white border border-gray-100 rounded-xl text-sm text-gray-600 cursor-pointer hover:border-green-200 transition-colors"
+                onClick={() => setIsOpen(!isOpen)}
+            >
+                <div className="flex items-center gap-2 min-w-0">
+                    {icon}
+                    <span className="truncate">{options.find(o => o.value === value)?.label || value}</span>
+                </div>
+                <ChevronDown className={`w-4 h-4 text-gray-400 transition-transform ${isOpen ? 'rotate-180' : ''}`} />
+            </div>
+            {isOpen && (
+                <div className="absolute z-10 w-full mt-1 bg-white border border-gray-100 rounded-xl shadow-lg max-h-60 overflow-y-auto">
+                    {options.map((opt) => (
+                        <div
+                            key={opt.value}
+                            className={`px-4 py-2.5 text-sm cursor-pointer transition-colors ${
+                                value === opt.value ? 'bg-green-50 text-green-600 font-medium' : 'text-gray-600 hover:bg-green-50 hover:text-green-600'
+                            }`}
+                            onClick={() => { onSelect(opt.value); setIsOpen(false); }}
+                        >
+                            {opt.label}
+                        </div>
+                    ))}
+                </div>
+            )}
+        </div>
+    );
 
     return (
         <div className="flex-1 overflow-auto bg-[#F8F9FA] p-8 pt-6">
@@ -219,19 +504,18 @@ const DetailedPCFTrend: React.FC = () => {
                     icon={LineChartIcon}
                 />
 
-                {/* Filters */}
-                {/* Filters */}
-                <div className="flex flex-wrap gap-4 mb-8">
+                {/* Primary Filters - Client & Supplier */}
+                <div className="flex flex-wrap gap-4 mb-4">
                     {/* Client Dropdown */}
-                    <div className="w-full md:w-64 relative">
+                    <div className="w-full md:w-64 relative client-dropdown-container">
                         <label className="text-xs font-bold text-gray-500 block mb-2">Select Client</label>
                         <div
-                            className="flex items-center justify-between px-4 py-2.5 bg-white border border-gray-100 rounded-xl text-sm text-gray-600 cursor-pointer"
+                            className="flex items-center justify-between px-4 py-2.5 bg-white border border-gray-100 rounded-xl text-sm text-gray-600 cursor-pointer hover:border-green-200 transition-colors"
                             onClick={() => setIsClientDropdownOpen(!isClientDropdownOpen)}
                         >
-                            <div className="flex items-center gap-2">
+                            <div className="flex items-center gap-2 min-w-0">
                                 <Users className="w-4 h-4 text-gray-400" />
-                                <span>{selectedClient ? (selectedClient.company_name || selectedClient.user_name) : "Select Client"}</span>
+                                <span className="truncate">{selectedClient ? (selectedClient.company_name || selectedClient.user_name) : "Select Client"}</span>
                             </div>
                             <ChevronDown className={`w-4 h-4 text-gray-400 transition-transform ${isClientDropdownOpen ? 'rotate-180' : ''}`} />
                         </div>
@@ -241,11 +525,17 @@ const DetailedPCFTrend: React.FC = () => {
                                 {clients.map((client) => (
                                     <div
                                         key={client.user_id}
-                                        className="px-4 py-2.5 text-sm text-gray-600 hover:bg-green-50 hover:text-green-600 cursor-pointer transition-colors"
+                                        className={`px-4 py-2.5 text-sm cursor-pointer transition-colors ${
+                                            selectedClient?.user_id === client.user_id
+                                                ? 'bg-green-50 text-green-600 font-medium'
+                                                : 'text-gray-600 hover:bg-green-50 hover:text-green-600'
+                                        }`}
                                         onClick={() => {
                                             setSelectedClient(client);
                                             setIsClientDropdownOpen(false);
-                                            setSelectedSupplier(null); // Reset supplier
+                                            setSelectedSupplier(null);
+                                            setSelectedProduct("all");
+                                            setSelectedYearRange("all");
                                         }}
                                     >
                                         {client.company_name || client.user_name}
@@ -259,15 +549,15 @@ const DetailedPCFTrend: React.FC = () => {
                     </div>
 
                     {/* Supplier Dropdown */}
-                    <div className="w-full md:w-64 relative">
+                    <div className="w-full md:w-64 relative supplier-dropdown-container">
                         <label className="text-xs font-bold text-gray-500 block mb-2">Select Supplier</label>
                         <div
-                            className={`flex items-center justify-between px-4 py-2.5 bg-white border border-gray-100 rounded-xl text-sm text-gray-600 cursor-pointer ${!selectedClient ? 'opacity-50 cursor-not-allowed' : ''}`}
+                            className={`flex items-center justify-between px-4 py-2.5 bg-white border border-gray-100 rounded-xl text-sm text-gray-600 cursor-pointer transition-colors ${!selectedClient ? 'opacity-50 cursor-not-allowed' : 'hover:border-green-200'}`}
                             onClick={() => selectedClient && setIsSupplierDropdownOpen(!isSupplierDropdownOpen)}
                         >
-                            <div className="flex items-center gap-2">
+                            <div className="flex items-center gap-2 min-w-0">
                                 <Factory className="w-4 h-4 text-gray-400" />
-                                <span>{selectedSupplier ? (selectedSupplier.name || selectedSupplier.supplier_name) : "Select Supplier"}</span>
+                                <span className="truncate">{selectedSupplier ? (selectedSupplier.name || selectedSupplier.supplier_name) : "All Suppliers"}</span>
                             </div>
                             <ChevronDown className={`w-4 h-4 text-gray-400 transition-transform ${isSupplierDropdownOpen ? 'rotate-180' : ''}`} />
                         </div>
@@ -276,21 +566,19 @@ const DetailedPCFTrend: React.FC = () => {
                             <div className="absolute z-10 w-full mt-1 bg-white border border-gray-100 rounded-xl shadow-lg max-h-60 overflow-y-auto">
                                 <div
                                     className="px-4 py-2.5 text-sm text-gray-600 hover:bg-green-50 hover:text-green-600 cursor-pointer transition-colors"
-                                    onClick={() => {
-                                        setSelectedSupplier(null);
-                                        setIsSupplierDropdownOpen(false);
-                                    }}
+                                    onClick={() => { setSelectedSupplier(null); setIsSupplierDropdownOpen(false); }}
                                 >
                                     All Suppliers
                                 </div>
                                 {suppliers.map((supplier) => (
                                     <div
                                         key={supplier.id || supplier.supplier_id}
-                                        className="px-4 py-2.5 text-sm text-gray-600 hover:bg-green-50 hover:text-green-600 cursor-pointer transition-colors"
-                                        onClick={() => {
-                                            setSelectedSupplier(supplier);
-                                            setIsSupplierDropdownOpen(false);
-                                        }}
+                                        className={`px-4 py-2.5 text-sm cursor-pointer transition-colors ${
+                                            selectedSupplier?.supplier_id === supplier.supplier_id
+                                                ? 'bg-green-50 text-green-600 font-medium'
+                                                : 'text-gray-600 hover:bg-green-50 hover:text-green-600'
+                                        }`}
+                                        onClick={() => { setSelectedSupplier(supplier); setIsSupplierDropdownOpen(false); }}
                                     >
                                         {supplier.name || supplier.supplier_name}
                                     </div>
@@ -302,6 +590,47 @@ const DetailedPCFTrend: React.FC = () => {
                         )}
                     </div>
                 </div>
+
+                {/* Secondary Filters - Product & Year Range */}
+                {selectedClient && (
+                    <div className="flex flex-wrap gap-4 mb-8">
+                        <DropdownFilter
+                            label="Filter by Product"
+                            value={selectedProduct}
+                            options={[
+                                { label: availableProducts.length > 4 ? `Top 4 Products` : "All Products", value: "all" },
+                                ...availableProducts.map(p => ({ label: p, value: p }))
+                            ]}
+                            isOpen={isProductDropdownOpen}
+                            setIsOpen={setIsProductDropdownOpen}
+                            onSelect={setSelectedProduct}
+                            containerClass="product-dropdown-container"
+                            icon={<Filter className="w-4 h-4 text-gray-400" />}
+                        />
+                        {yearRangeOptions.length > 1 && (
+                            <DropdownFilter
+                                label="Year Range"
+                                value={selectedYearRange}
+                                options={yearRangeOptions}
+                                isOpen={isYearDropdownOpen}
+                                setIsOpen={setIsYearDropdownOpen}
+                                onSelect={setSelectedYearRange}
+                                containerClass="year-dropdown-container"
+                                icon={<Filter className="w-4 h-4 text-gray-400" />}
+                            />
+                        )}
+                        {(selectedProduct !== "all" || selectedYearRange !== "all") && (
+                            <div className="flex items-end pb-0.5">
+                                <button
+                                    className="px-4 py-2.5 text-sm text-green-600 bg-green-50 rounded-xl hover:bg-green-100 transition-colors font-medium"
+                                    onClick={() => { setSelectedProduct("all"); setSelectedYearRange("all"); }}
+                                >
+                                    Clear Filters
+                                </button>
+                            </div>
+                        )}
+                    </div>
+                )}
 
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                     <ChartCard title="PCF Reduction Graph" showExpand onExpand={() => setExpandedChart("reduction")}>
