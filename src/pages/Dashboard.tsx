@@ -6,6 +6,7 @@ import {
   Factory,
   RefreshCw,
   Users,
+  ChevronLeft,
 } from "lucide-react";
 import { Select } from "antd";
 import {
@@ -669,9 +670,20 @@ const Dashboard: React.FC = () => {
     return <Welcome />;
   }
 
+  const isFromSuperAdmin = location.state?.fromSuperAdmin;
+
   return (
     <div className="flex-1 overflow-auto bg-[#F8F9FA] p-8 pt-6">
       <div className="mx-auto space-y-6">
+        {isFromSuperAdmin && (
+          <button
+            onClick={() => navigate("/dashboard", { state: {} })}
+            className="flex items-center gap-2 text-gray-900 font-bold hover:text-green-600 transition-colors group cursor-pointer"
+          >
+            <ChevronLeft className="w-5 h-5 group-hover:-translate-x-1 transition-transform" />
+            Back to Overview
+          </button>
+        )}
         <DashboardHeader />
 
         {/* Client Selection Dropdown */}
