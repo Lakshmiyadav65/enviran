@@ -87,23 +87,27 @@ interface KPICardProps {
 }
 
 const KPICard: React.FC<KPICardProps> = ({ title, value, subtitle, icon: Icon, iconBg, iconColor, trend }) => (
-  <div className="bg-white border border-gray-100 rounded-2xl p-6 shadow-sm hover:shadow-md transition-shadow">
-    <div className="flex justify-between items-start mb-4">
-      <div className={`${iconBg} ${iconColor} p-2.5 rounded-xl`}>
-        <Icon className="w-5 h-5" />
-      </div>
-      {trend !== undefined && (
-        <div className={`flex items-center gap-1 px-2 py-1 rounded-full text-xs font-bold ${
-          trend < 0 ? "bg-green-50 text-green-600" : "bg-orange-50 text-orange-600"
-        }`}>
-          {trend < 0 ? <TrendingDown className="w-3 h-3" /> : <TrendingUp className="w-3 h-3" />}
-          {trend > 0 ? "+" : ""}{trend}%
+  <div className="relative bg-white border border-gray-100 rounded-2xl p-6 shadow-sm hover:shadow-lg hover:-translate-y-0.5 transition-all duration-300 overflow-hidden group">
+    {/* Subtle gradient accent on hover */}
+    <div className={`absolute inset-0 ${iconBg} opacity-0 group-hover:opacity-[0.04] transition-opacity duration-300`} />
+    <div className="relative">
+      <div className="flex justify-between items-start mb-4">
+        <div className={`${iconBg} ${iconColor} p-3 rounded-2xl shadow-sm`}>
+          <Icon className="w-5 h-5" />
         </div>
-      )}
+        {trend !== undefined && (
+          <div className={`flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold ${
+            trend < 0 ? "bg-green-50 text-green-600" : "bg-orange-50 text-orange-600"
+          }`}>
+            {trend < 0 ? <TrendingDown className="w-3 h-3" /> : <TrendingUp className="w-3 h-3" />}
+            {trend > 0 ? "+" : ""}{trend}%
+          </div>
+        )}
+      </div>
+      <h3 className="text-3xl font-extrabold text-gray-900 tracking-tight">{value}</h3>
+      <p className="text-sm font-semibold text-gray-500 mt-1.5">{title}</p>
+      <p className="text-xs text-gray-400 mt-0.5">{subtitle}</p>
     </div>
-    <h3 className="text-2xl font-bold text-gray-900">{value}</h3>
-    <p className="text-sm font-medium text-gray-400 mt-1">{title}</p>
-    <p className="text-xs text-gray-400">{subtitle}</p>
   </div>
 );
 
@@ -171,20 +175,34 @@ const SuperAdminDashboard: React.FC = () => {
     <div className="flex-1 overflow-auto bg-[#F8F9FA] p-8 pt-6">
       <div className="mx-auto max-w-7xl space-y-6">
         {/* Header */}
-        <div className="bg-white border border-gray-100 rounded-2xl p-6 shadow-sm relative overflow-hidden">
-          <div className="absolute top-0 right-0 w-64 h-64 bg-gradient-to-br from-green-50 to-green-100 rounded-full -translate-y-1/2 translate-x-1/2 opacity-50" />
+        <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-[#1A5D1A] via-[#2E8B2E] to-[#52C41A] p-8 shadow-lg">
+          {/* Decorative circles */}
+          <div className="absolute -top-6 -right-6 w-32 h-32 bg-white/10 rounded-full" />
+          <div className="absolute -bottom-8 -left-8 w-40 h-40 bg-white/5 rounded-full" />
+          <div className="absolute top-1/2 right-1/3 w-20 h-20 bg-white/5 rounded-full" />
+
           <div className="relative flex items-center justify-between">
-            <div className="flex items-center gap-4">
-              <div className="bg-gradient-to-br from-green-500 to-green-600 p-3 rounded-xl shadow-lg shadow-green-100">
-                <Globe className="w-6 h-6 text-white" />
+            <div className="flex items-center gap-5">
+              <div className="bg-white/20 backdrop-blur-sm p-3.5 rounded-2xl border border-white/20">
+                <Globe className="w-7 h-7 text-white" />
               </div>
               <div>
-                <h1 className="text-2xl font-bold text-gray-900">
+                <h1 className="text-2xl font-bold text-white tracking-tight">
                   {getGreeting()}, {firstName}!
                 </h1>
-                <p className="text-sm text-gray-400">
+                <p className="text-sm text-green-100 mt-1">
                   Platform Overview - EnviGuide Management Suite
                 </p>
+              </div>
+            </div>
+            <div className="hidden md:flex items-center gap-4">
+              <div className="bg-white/20 backdrop-blur-sm rounded-xl px-5 py-3 border border-white/20 text-center">
+                <p className="text-xs font-semibold text-white/80">Active Clients</p>
+                <p className="text-xl font-extrabold text-white">{platformStats.activeClients}/{platformStats.totalClients}</p>
+              </div>
+              <div className="bg-white/20 backdrop-blur-sm rounded-xl px-5 py-3 border border-white/20 text-center">
+                <p className="text-xs font-semibold text-white/80">Pending Requests</p>
+                <p className="text-xl font-extrabold text-amber-300">{platformStats.pendingRequests}</p>
               </div>
             </div>
           </div>
