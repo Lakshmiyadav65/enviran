@@ -171,20 +171,27 @@ export const DetailedHeader: React.FC<{
 
 export const DashboardHeader: React.FC = () => {
     return (
-        <div className="bg-white border border-gray-100 rounded-2xl p-6 flex items-center justify-between shadow-sm mb-6">
-            <div className="flex items-center gap-4">
-                <div className="bg-green-500 p-3 rounded-xl shadow-lg shadow-green-100">
-                    <Leaf className="w-6 h-6 text-white" />
+        <div className="relative overflow-hidden rounded-2xl mb-6 bg-gradient-to-r from-[#1A5D1A] via-[#2E8B2E] to-[#52C41A] p-8 shadow-lg">
+            {/* Decorative circles */}
+            <div className="absolute -top-6 -right-6 w-32 h-32 bg-white/10 rounded-full" />
+            <div className="absolute -bottom-8 -left-8 w-40 h-40 bg-white/5 rounded-full" />
+            <div className="absolute top-1/2 right-1/3 w-20 h-20 bg-white/5 rounded-full" />
+
+            <div className="relative flex items-center justify-between">
+                <div className="flex items-center gap-5">
+                    <div className="bg-white/20 backdrop-blur-sm p-3.5 rounded-2xl border border-white/20">
+                        <Leaf className="w-7 h-7 text-white" />
+                    </div>
+                    <div>
+                        <h1 className="text-2xl font-bold text-white tracking-tight">Product Carbon Footprint Dashboard</h1>
+                        <p className="text-sm text-green-100 mt-1">Comprehensive carbon footprint metrics across product lifecycle</p>
+                    </div>
                 </div>
-                <div>
-                    <h1 className="text-2xl font-bold text-gray-900">Product Carbon Footprint Dashboard</h1>
-                    <p className="text-sm text-gray-400">Comprehensive carbon footprint metrics across product lifecycle</p>
-                </div>
+                <button className="flex items-center gap-2 px-5 py-2.5 bg-white text-green-700 rounded-xl text-sm font-bold hover:bg-green-50 transition-colors shadow-md cursor-pointer">
+                    <Download className="w-4 h-4" />
+                    Export Report
+                </button>
             </div>
-            <button className="flex items-center gap-2 px-5 py-2.5 bg-green-500 text-white rounded-xl text-sm font-bold hover:bg-green-600 transition-colors shadow-lg shadow-green-50 cursor-pointer">
-                <Download className="w-4 h-4" />
-                Export Report
-            </button>
         </div>
     );
 };
