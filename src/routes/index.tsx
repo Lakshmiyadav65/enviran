@@ -1,6 +1,6 @@
 import { createBrowserRouter, Navigate } from "react-router-dom";
 import Layout from "../components/Layout";
-import Dashboard from "../pages/Dashboard";
+import DashboardRouter from "../pages/DashboardRouter";
 import VisitorManagement from "../pages/VisitorManagement";
 import SuiteManagement from "../pages/SuiteManagement";
 import Bookings from "../pages/Bookings";
@@ -126,7 +126,7 @@ export const router = createBrowserRouter([
     children: [
       {
         path: "dashboard",
-        element: <Dashboard />,
+        element: <DashboardRouter />,
       },
       {
         path: "dashboard/detailed-lifecycle",

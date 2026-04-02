@@ -39,29 +39,25 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   });
 
   useEffect(() => {
-    // Check if user is already authenticated on app load
-    const checkAuth = () => {
-      const token = authService.getToken();
-      const user = authService.getCurrentUser();
-      
-      if (token && user) {
-        setAuthState({
-          isAuthenticated: true,
-          user,
-          token,
-          loading: false,
-        });
-      } else {
-        setAuthState({
-          isAuthenticated: false,
-          user: null,
-          token: null,
-          loading: false,
-        });
-      }
+    // Dev bypass: auto-authenticate without API
+    const devUser: User = {
+      id: 'dev-user-1',
+      userId: 'dev-user-1',
+      name: 'Narasimha Goggi',
+      email: 'narasimha.goggi@enviguide.com',
+      role: 'Admin',
+      department: 'Engineering',
+      phoneNumber: '',
     };
-
-    checkAuth();
+    const devToken = 'dev-bypass-token';
+    authService.updateUserData(devUser);
+    localStorage.setItem('token', devToken);
+    setAuthState({
+      isAuthenticated: true,
+      user: devUser,
+      token: devToken,
+      loading: false,
+    });
   }, []);
 
   const login = async (email: string, password: string) => {

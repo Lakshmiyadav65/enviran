@@ -6,8 +6,8 @@ import {
   Factory,
   RefreshCw,
   Users,
-  ChevronDown
 } from "lucide-react";
+import { Select } from "antd";
 import {
   BarChart,
   Bar,
@@ -20,6 +20,15 @@ import {
   LineChart,
   Line,
   Legend,
+  PieChart,
+  Pie,
+  AreaChart,
+  Area,
+  RadarChart,
+  Radar,
+  PolarGrid,
+  PolarAngleAxis,
+  PolarRadiusAxis,
 } from "recharts";
 import {
   StatCard,
@@ -59,7 +68,6 @@ const Dashboard: React.FC = () => {
   // Client State
   const [clients, setClients] = useState<Client[]>([]);
   const [selectedClient, setSelectedClient] = useState<Client | null>(null);
-  const [isClientDropdownOpen, setIsClientDropdownOpen] = useState(false);
 
   // Restore selected client when navigating back from detail pages
   React.useEffect(() => {
@@ -447,41 +455,44 @@ const Dashboard: React.FC = () => {
   };
 
   const renderProductLifeCycle = () => {
-    const top4 = [...lifeCycleData].sort((a, b) => b.value - a.value).slice(0, 4);
+    const total = lifeCycleData.reduce((sum, d) => sum + d.value, 0);
+    const pieData = lifeCycleData.map(d => ({ ...d } as Record<string, any>));
     return (
       <ResponsiveContainer width="100%" height="100%">
-        <BarChart data={top4} margin={{ top: 10, right: 20, left: 10, bottom: 30 }}>
-          <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#F1F3F5" />
-          <XAxis dataKey="name" axisLine={false} tickLine={false} tick={<WrappedTick />} interval={0} />
-          <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: '#4B5563', fontWeight: 500 }} tickFormatter={formatYAxis} />
-          <Tooltip cursor={{ fill: '#F9FAFB' }} />
-          <Legend verticalAlign="bottom" align="center" iconType="square" iconSize={10} wrapperStyle={{ fontSize: '10px', fontWeight: 'bold', paddingTop: '10px' }} />
-          <Bar dataKey="value" radius={[4, 4, 0, 0]} barSize={40} name="Emission (kg CO₂e)">
-            {top4.map((entry, index) => (
+        <PieChart>
+          <Pie
+            data={pieData}
+            cx="50%"
+            cy="45%"
+            innerRadius={55}
+            outerRadius={95}
+            paddingAngle={3}
+            dataKey="value"
+            nameKey="name"
+            label={({ name, value }) => `${name}: ${total > 0 ? ((value / total) * 100).toFixed(1) : 0}%`}
+            labelLine={{ stroke: '#9CA3AF', strokeWidth: 1 }}
+          >
+            {lifeCycleData.map((entry, index) => (
               <Cell key={`cell-${index}`} fill={entry.color} />
             ))}
-          </Bar>
-        </BarChart>
+          </Pie>
+          <Tooltip formatter={(value: any) => [`${Number(value).toFixed(2)} kg CO₂e`, 'Emission']} />
+          <Legend verticalAlign="bottom" iconType="circle" iconSize={8} wrapperStyle={{ fontSize: '10px', fontWeight: 600, paddingTop: '4px' }} />
+        </PieChart>
       </ResponsiveContainer>
     );
   };
 
   const renderSupplierEmission = () => {
-    const top4 = [...supplierEmissionData].sort((a, b) => b.value - a.value).slice(0, 4).map(d => ({ ...d, displayName: cleanName(d.name) }));
-    const values = top4.map(d => d.value).filter(v => v > 0);
-    const maxVal = Math.max(...values);
-    const minVal = Math.min(...values);
-    const useLog = maxVal > 0 && minVal > 0 && (maxVal / minVal) > 50;
-
+    const top5 = [...supplierEmissionData].sort((a, b) => b.value - a.value).slice(0, 5).map(d => ({ ...d, displayName: cleanName(d.name) }));
     return (
       <ResponsiveContainer width="100%" height="100%">
-        <BarChart data={top4} margin={{ top: 10, right: 10, left: 10, bottom: 30 }}>
-          <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#F1F3F5" />
-          <XAxis dataKey="displayName" axisLine={false} tickLine={false} tick={<WrappedTick />} interval={0} />
-          <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 9, fill: '#4B5563', fontWeight: 500 }} tickFormatter={formatYAxis} scale={useLog ? "log" : "auto"} domain={useLog ? [1, 'dataMax * 1.2'] : [0, 'dataMax * 1.2']} allowDataOverflow />
-          <Tooltip cursor={{ fill: '#F9FAFB' }} formatter={(value: any) => [`${Number(value).toFixed(2)} kg`, 'Emission']} labelFormatter={(_: any, p: any) => p?.[0]?.payload?.name || _} />
-          <Legend verticalAlign="bottom" align="center" iconType="square" iconSize={10} wrapperStyle={{ fontSize: '10px', fontWeight: 'bold', paddingTop: '4px' }} />
-          <Bar dataKey="value" fill="#52C41A" radius={[4, 4, 0, 0]} barSize={40} name="Emission (kg CO₂e)" />
+        <BarChart data={top5} layout="vertical" margin={{ top: 10, right: 30, left: 10, bottom: 10 }}>
+          <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="#F1F3F5" />
+          <XAxis type="number" axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: '#4B5563' }} tickFormatter={formatYAxis} />
+          <YAxis type="category" dataKey="displayName" axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: '#4B5563', fontWeight: 500 }} width={100} />
+          <Tooltip formatter={(value: any) => [`${Number(value).toFixed(2)} kg CO₂e`, 'Emission']} labelFormatter={(_: any, p: any) => p?.[0]?.payload?.name || _} />
+          <Bar dataKey="value" fill="#52C41A" radius={[0, 4, 4, 0]} barSize={18} name="Emission (kg CO₂e)" />
         </BarChart>
       </ResponsiveContainer>
     );
@@ -503,87 +514,121 @@ const Dashboard: React.FC = () => {
     );
   };
 
-  const renderPackagingEmission = () => (
-    <ResponsiveContainer width="100%" height="100%">
-      <BarChart data={packagingData} margin={{ top: 10, right: 20, left: 10, bottom: 20 }}>
-        <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#F1F3F5" />
-        <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: '#4B5563', fontWeight: 500 }} />
-        <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: '#4B5563', fontWeight: 500 }} tickFormatter={formatYAxis} />
-        <Tooltip cursor={{ fill: '#F9FAFB' }} />
-        <Legend verticalAlign="bottom" align="center" iconType="square" iconSize={10} wrapperStyle={{ fontSize: '10px', fontWeight: 'bold', paddingTop: '10px' }} />
-        <Bar dataKey="value" fill="#52C41A" radius={[4, 4, 0, 0]} barSize={40} name="Emission (kg CO₂e)" />
-      </BarChart>
-    </ResponsiveContainer>
-  );
+  const PACKAGING_COLORS = ["#1A5D1A", "#458C21", "#74B72E", "#98FB98", "#C1FFC1"];
+  const renderPackagingEmission = () => {
+    const total = packagingData.reduce((sum, d) => sum + d.value, 0);
+    return (
+      <div className="h-full flex flex-col gap-3 py-2">
+        {packagingData.map((item, i) => {
+          const pct = total > 0 ? (item.value / total) * 100 : 0;
+          return (
+            <div key={i} className="flex-1 flex flex-col justify-center">
+              <div className="flex justify-between items-center mb-1.5">
+                <span className="text-sm font-semibold text-gray-700">{item.name}</span>
+                <span className="text-xs font-bold text-gray-500">{item.value} kg &middot; {pct.toFixed(1)}%</span>
+              </div>
+              <div className="w-full bg-gray-100 rounded-full h-5 overflow-hidden">
+                <div
+                  className="h-full rounded-full transition-all duration-500"
+                  style={{ width: `${pct}%`, backgroundColor: PACKAGING_COLORS[i % PACKAGING_COLORS.length] }}
+                />
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    );
+  };
 
   const renderTransportationEmission = () => {
-    const top4 = [...transportationData].sort((a, b) => b.value - a.value).slice(0, 4).map(d => ({ ...d, displayName: cleanName(d.name) }));
+    const top6 = [...transportationData].sort((a, b) => b.value - a.value).slice(0, 6).map(d => ({ ...d, displayName: cleanName(d.name) }));
     return (
       <ResponsiveContainer width="100%" height="100%">
-        <BarChart data={top4} margin={{ top: 10, right: 20, left: 10, bottom: 45 }}>
-          <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#F1F3F5" />
-          <XAxis dataKey="displayName" axisLine={false} tickLine={false} tick={<WrappedTick />} interval={0} />
-          <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: '#4B5563', fontWeight: 500 }} tickFormatter={formatYAxis} />
-          <Tooltip cursor={{ fill: '#F9FAFB' }} labelFormatter={(_: any, p: any) => p?.[0]?.payload?.name || _} />
-          <Legend verticalAlign="bottom" align="center" iconType="square" iconSize={10} wrapperStyle={{ fontSize: '10px', fontWeight: 'bold', paddingTop: '10px' }} />
-          <Bar dataKey="value" fill="#52C41A" radius={[4, 4, 0, 0]} barSize={40} name="Emission (kg CO₂e)" />
-        </BarChart>
+        <RadarChart cx="50%" cy="45%" outerRadius="70%" data={top6}>
+          <PolarGrid stroke="#E5E7EB" />
+          <PolarAngleAxis dataKey="displayName" tick={{ fontSize: 10, fill: '#4B5563', fontWeight: 500 }} />
+          <PolarRadiusAxis tick={{ fontSize: 9, fill: '#9CA3AF' }} axisLine={false} />
+          <Radar name="Emission (kg CO₂e)" dataKey="value" stroke="#52C41A" fill="#52C41A" fillOpacity={0.25} strokeWidth={2} />
+          <Tooltip formatter={(value: any) => [`${Number(value).toFixed(2)} kg CO₂e`, 'Emission']} />
+          <Legend verticalAlign="bottom" iconType="circle" iconSize={8} wrapperStyle={{ fontSize: '10px', fontWeight: 600 }} />
+        </RadarChart>
       </ResponsiveContainer>
     );
   };
 
   const renderEnergyEmission = () => (
     <ResponsiveContainer width="100%" height="100%">
-      <BarChart data={energyData} margin={{ top: 10, right: 20, left: 10, bottom: 20 }}>
+      <AreaChart data={energyData} margin={{ top: 10, right: 20, left: 10, bottom: 20 }}>
+        <defs>
+          <linearGradient id="energyGradient" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="5%" stopColor="#52C41A" stopOpacity={0.3} />
+            <stop offset="95%" stopColor="#52C41A" stopOpacity={0.02} />
+          </linearGradient>
+        </defs>
         <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#F1F3F5" />
         <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: '#4B5563', fontWeight: 500 }} interval={0} />
         <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: '#4B5563', fontWeight: 500 }} tickFormatter={formatYAxis} />
-        <Tooltip cursor={{ fill: '#F9FAFB' }} />
-        <Legend verticalAlign="bottom" align="center" iconType="square" iconSize={10} wrapperStyle={{ fontSize: '10px', fontWeight: 'bold', paddingTop: '10px' }} />
-        <Bar dataKey="value" fill="#52C41A" radius={[4, 4, 0, 0]} barSize={40} name="Energy Emission (kg CO₂e)" />
-      </BarChart>
+        <Tooltip formatter={(value: any) => [`${Number(value).toFixed(2)} kg CO₂e`, 'Energy Emission']} />
+        <Legend verticalAlign="bottom" align="center" iconType="circle" iconSize={8} wrapperStyle={{ fontSize: '10px', fontWeight: 600, paddingTop: '10px' }} />
+        <Area type="monotone" dataKey="value" stroke="#52C41A" strokeWidth={2} fill="url(#energyGradient)" name="Energy Emission (kg CO₂e)" dot={{ fill: '#52C41A', r: 4 }} activeDot={{ r: 6 }} />
+      </AreaChart>
     </ResponsiveContainer>
   );
 
+  const RECYCLE_COLORS = ["#1A5D1A", "#458C21", "#74B72E", "#98FB98"];
   const renderRecyclability = () => {
-    const cleaned = recyclabilityData.map(d => ({ ...d, displayName: cleanName(d.name) }));
+    const cleaned = recyclabilityData.map(d => ({ ...d, displayName: cleanName(d.name) } as Record<string, any>));
     return (
       <ResponsiveContainer width="100%" height="100%">
-        <BarChart data={cleaned} margin={{ top: 10, right: 20, left: 10, bottom: 30 }}>
-          <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#F1F3F5" />
-          <XAxis dataKey="displayName" axisLine={false} tickLine={false} tick={<WrappedTick />} interval={0} />
-          <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: '#4B5563', fontWeight: 500 }} tickFormatter={formatYAxis} />
-          <Tooltip cursor={{ fill: '#F9FAFB' }} labelFormatter={(_: any, p: any) => p?.[0]?.payload?.name || _} />
-          <Legend verticalAlign="bottom" align="center" iconType="square" iconSize={10} wrapperStyle={{ fontSize: '10px', fontWeight: 'bold', paddingTop: '10px' }} />
-          <Bar dataKey="value" fill="#52C41A" radius={[4, 4, 0, 0]} barSize={40} name="Material Used (kg)" />
-        </BarChart>
+        <PieChart>
+          <Pie
+            data={cleaned}
+            cx="50%"
+            cy="45%"
+            innerRadius={60}
+            outerRadius={90}
+            paddingAngle={3}
+            dataKey="value"
+            nameKey="displayName"
+          >
+            {cleaned.map((_entry, index) => (
+              <Cell key={`cell-${index}`} fill={RECYCLE_COLORS[index % RECYCLE_COLORS.length]} />
+            ))}
+          </Pie>
+          <Tooltip formatter={(value: any, _: any, entry: any) => [`${Number(value).toFixed(2)} kg`, entry?.payload?.name || 'Material']} />
+          <Legend verticalAlign="bottom" iconType="circle" iconSize={8} wrapperStyle={{ fontSize: '10px', fontWeight: 600, paddingTop: '4px' }} />
+        </PieChart>
       </ResponsiveContainer>
     );
   };
 
+  const WASTE_COLORS = ["#52C41A", "#1890FF", "#FAAD14", "#FF4D4F"];
   const renderWasteEmission = () => (
     <ResponsiveContainer width="100%" height="100%">
-      <BarChart data={wasteData} margin={{ top: 10, right: 20, left: 10, bottom: 20 }}>
-        <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#F1F3F5" />
-        <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: '#4B5563', fontWeight: 500 }} interval={0} />
-        <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: '#4B5563', fontWeight: 500 }} tickFormatter={formatYAxis} />
-        <Tooltip cursor={{ fill: '#F9FAFB' }} />
-        <Legend verticalAlign="bottom" align="center" iconType="square" iconSize={10} wrapperStyle={{ fontSize: '10px', fontWeight: 'bold', paddingTop: '10px' }} />
-        <Bar dataKey="value" fill="#52C41A" radius={[4, 4, 0, 0]} barSize={40} name="Waste Emission (kg CO₂e)" />
+      <BarChart data={wasteData} layout="vertical" margin={{ top: 10, right: 30, left: 10, bottom: 10 }}>
+        <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="#F1F3F5" />
+        <XAxis type="number" axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: '#4B5563' }} tickFormatter={formatYAxis} />
+        <YAxis type="category" dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: '#4B5563', fontWeight: 500 }} width={90} />
+        <Tooltip formatter={(value: any) => [`${Number(value).toFixed(2)} kg CO₂e`, 'Waste Emission']} />
+        <Bar dataKey="value" radius={[0, 6, 6, 0]} barSize={20} name="Waste Emission (kg CO₂e)">
+          {wasteData.map((_entry, index) => (
+            <Cell key={`cell-${index}`} fill={WASTE_COLORS[index % WASTE_COLORS.length]} />
+          ))}
+        </Bar>
       </BarChart>
     </ResponsiveContainer>
   );
 
   const renderImpact = () => (
     <ResponsiveContainer width="100%" height="100%">
-      <BarChart data={impactCategoriesData} margin={{ top: 10, right: 20, left: 10, bottom: 20 }}>
-        <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#F1F3F5" />
-        <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: '#4B5563', fontWeight: 500 }} />
-        <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: '#4B5563', fontWeight: 500 }} tickFormatter={formatYAxis} />
-        <Tooltip cursor={{ fill: '#F9FAFB' }} />
-        <Legend verticalAlign="bottom" align="center" iconType="square" iconSize={10} wrapperStyle={{ fontSize: '10px', fontWeight: 'bold', paddingTop: '10px' }} />
-        <Bar dataKey="value" fill="#52C41A" radius={[4, 4, 0, 0]} barSize={40} name="Impact (kg CO₂e)" />
-      </BarChart>
+      <RadarChart cx="50%" cy="45%" outerRadius="70%" data={impactCategoriesData}>
+        <PolarGrid stroke="#E5E7EB" />
+        <PolarAngleAxis dataKey="name" tick={{ fontSize: 11, fill: '#4B5563', fontWeight: 600 }} />
+        <PolarRadiusAxis tick={{ fontSize: 9, fill: '#9CA3AF' }} axisLine={false} />
+        <Radar name="Impact Score" dataKey="value" stroke="#1890FF" fill="#1890FF" fillOpacity={0.2} strokeWidth={2} dot={{ fill: '#1890FF', r: 3 }} />
+        <Tooltip formatter={(value: any) => [`${Number(value).toFixed(2)}`, 'Impact Score']} />
+        <Legend verticalAlign="bottom" iconType="circle" iconSize={8} wrapperStyle={{ fontSize: '10px', fontWeight: 600 }} />
+      </RadarChart>
     </ResponsiveContainer>
   );
 
@@ -631,37 +676,34 @@ const Dashboard: React.FC = () => {
 
         {/* Client Selection Dropdown */}
         <div className="flex justify-end mb-6">
-          <div className="w-full md:w-72 relative">
-            <div
-              className="flex items-center justify-between px-4 py-2.5 bg-white border border-gray-100 rounded-xl text-sm text-gray-600 cursor-pointer shadow-sm hover:border-green-200 transition-colors"
-              onClick={() => setIsClientDropdownOpen(!isClientDropdownOpen)}
-            >
-              <div className="flex items-center gap-2 min-w-0">
-                <Users className="w-4 h-4 text-gray-400 shrink-0" />
-                <span className="truncate">{selectedClient ? selectedClient.user_name : "Select Client"}</span>
-              </div>
-              <ChevronDown className={`w-4 h-4 text-gray-400 transition-transform ${isClientDropdownOpen ? 'rotate-180' : ''}`} />
-            </div>
-
-            {isClientDropdownOpen && (
-              <div className="absolute z-10 w-full mt-1 bg-white border border-gray-100 rounded-xl shadow-lg max-h-60 overflow-y-auto">
-                {clients.map((client) => (
-                  <div
-                    key={client.user_id}
-                    className="px-4 py-2.5 text-sm text-gray-600 hover:bg-green-50 hover:text-green-600 cursor-pointer transition-colors"
-                    onClick={() => {
-                      setSelectedClient(client);
-                      setIsClientDropdownOpen(false);
-                    }}
-                  >
-                    {client.user_name}
-                  </div>
-                ))}
-                {clients.length === 0 && (
-                  <div className="px-4 py-2.5 text-sm text-gray-400">No clients available</div>
-                )}
-              </div>
-            )}
+          <div className="w-full md:w-80">
+            <Select
+              showSearch
+              placeholder="Search and select a client..."
+              className="w-full"
+              size="large"
+              value={selectedClient?.user_id || undefined}
+              filterOption={(input, option) =>
+                (option?.label as string ?? "").toLowerCase().includes(input.toLowerCase())
+              }
+              onChange={(value) => {
+                const client = clients.find(c => c.user_id === value);
+                setSelectedClient(client || null);
+              }}
+              allowClear
+              onClear={() => setSelectedClient(null)}
+              options={clients.map((c) => ({
+                value: c.user_id,
+                label: c.user_name,
+              }))}
+              virtual
+              suffixIcon={<Users className="w-4 h-4 text-gray-400" />}
+              notFoundContent={
+                <div className="text-center py-4 text-gray-400 text-sm">
+                  No clients found
+                </div>
+              }
+            />
           </div>
         </div>
 

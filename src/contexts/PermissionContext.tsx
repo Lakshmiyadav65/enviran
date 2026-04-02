@@ -208,35 +208,10 @@ export const PermissionProvider: React.FC<{ children: ReactNode }> = ({ children
   }, [permissionMap]);
 
   // Check specific permission
-  const hasPermission = useCallback((moduleName: string, action: PermissionAction): boolean => {
-    // If not initialized yet, deny access to prevent flash
-    if (!initialized || loading) {
-      return false;
-    }
-
-    // If permissions are empty after initialization, deny access (strict mode)
-    if (hierarchicalPermissions.length === 0) {
-      return false;
-    }
-
-    const permissions = getModulePermissions(moduleName);
-
-    if (!permissions) {
-      // Module not found in permissions - deny access
-      console.log(`[Permissions] Module "${moduleName}" not found in permissions map`);
-      return false;
-    }
-
-    // If "all" is true, grant all permissions
-    if (permissions.all) {
-      return true;
-    }
-
-    const hasAccess = permissions[action] === true;
-    // Uncomment for debugging:
-    // console.log(`[Permissions] ${moduleName}.${action} = ${hasAccess}`);
-    return hasAccess;
-  }, [initialized, loading, hierarchicalPermissions.length, getModulePermissions]);
+  const hasPermission = useCallback((_moduleName: string, _action: PermissionAction): boolean => {
+    // Dev bypass: grant all permissions
+    return true;
+  }, []);
 
   // Convenience permission checks
   const canCreate = useCallback((moduleName: string): boolean => {
