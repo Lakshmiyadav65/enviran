@@ -37,11 +37,11 @@ import Welcome from "./Welcome";
 import dashboardService from "../lib/dashboardService";
 
 const COLOR_MAP: Record<string, string> = {
-  "Raw Material": "#1A5D1A",
-  "Manufacturing": "#458C21",
-  "Packaging": "#74B72E",
-  "Transportation": "#98FB98",
-  "End of Life": "#C1FFC1",
+  "Raw Material": "#14532D",
+  "Manufacturing": "#166534",
+  "Packaging": "#22C55E",
+  "Transportation": "#4ADE80",
+  "End of Life": "#86EFAC",
 };
 
 interface Client {
