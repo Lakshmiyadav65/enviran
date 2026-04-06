@@ -25,11 +25,6 @@ import {
   Pie,
   AreaChart,
   Area,
-  RadarChart,
-  Radar,
-  PolarGrid,
-  PolarAngleAxis,
-  PolarRadiusAxis,
 } from "recharts";
 import {
   StatCard,
@@ -684,18 +679,27 @@ const Dashboard: React.FC = () => {
     );
   };
 
+  const TRANSPORT_COLORS = ["#1A5D1A", "#2E8B2E", "#458C21", "#52C41A", "#74B72E", "#98FB98"];
   const renderTransportationEmission = () => {
-    const top6 = [...transportationData].sort((a, b) => b.value - a.value).slice(0, 6).map(d => ({ ...d, displayName: cleanName(d.name) }));
+    const sorted = [...transportationData].sort((a, b) => b.value - a.value).slice(0, 6).map(d => ({ ...d, displayName: cleanName(d.name) }));
     return (
       <ResponsiveContainer width="100%" height="100%">
-        <RadarChart cx="50%" cy="45%" outerRadius="70%" data={top6}>
-          <PolarGrid stroke="#E5E7EB" />
-          <PolarAngleAxis dataKey="displayName" tick={{ fontSize: 10, fill: '#4B5563', fontWeight: 500 }} />
-          <PolarRadiusAxis tick={{ fontSize: 9, fill: '#9CA3AF' }} axisLine={false} />
-          <Radar name="Emission (kg CO₂e)" dataKey="value" stroke="#52C41A" fill="#52C41A" fillOpacity={0.25} strokeWidth={2} />
-          <Tooltip formatter={(value: any) => [`${Number(value).toFixed(2)} kg CO₂e`, 'Emission']} />
-          <Legend verticalAlign="bottom" iconType="circle" iconSize={8} wrapperStyle={{ fontSize: '10px', fontWeight: 600 }} />
-        </RadarChart>
+        <BarChart data={sorted} layout="vertical" margin={{ top: 5, right: 30, left: 5, bottom: 5 }}>
+          <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="#F1F3F5" />
+          <XAxis type="number" axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: '#9CA3AF' }} tickFormatter={formatYAxis} />
+          <YAxis type="category" dataKey="displayName" axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: '#4B5563', fontWeight: 600 }} width={110} />
+          <Tooltip
+            formatter={(value: any) => [`${Number(value).toFixed(2)} kg CO₂e`, 'Emission']}
+            labelFormatter={(_: any, p: any) => p?.[0]?.payload?.name || _}
+            contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 4px 20px rgba(0,0,0,0.1)', fontSize: '12px', fontWeight: 600 }}
+            cursor={{ fill: '#F9FAFB' }}
+          />
+          <Bar dataKey="value" radius={[0, 6, 6, 0]} barSize={16} name="Emission (kg CO₂e)">
+            {sorted.map((_entry, index) => (
+              <Cell key={`cell-${index}`} fill={TRANSPORT_COLORS[index % TRANSPORT_COLORS.length]} />
+            ))}
+          </Bar>
+        </BarChart>
       </ResponsiveContainer>
     );
   };
@@ -763,18 +767,29 @@ const Dashboard: React.FC = () => {
     </ResponsiveContainer>
   );
 
-  const renderImpact = () => (
-    <ResponsiveContainer width="100%" height="100%">
-      <RadarChart cx="50%" cy="45%" outerRadius="70%" data={impactCategoriesData}>
-        <PolarGrid stroke="#E5E7EB" />
-        <PolarAngleAxis dataKey="name" tick={{ fontSize: 11, fill: '#4B5563', fontWeight: 600 }} />
-        <PolarRadiusAxis tick={{ fontSize: 9, fill: '#9CA3AF' }} axisLine={false} />
-        <Radar name="Impact Score" dataKey="value" stroke="#1890FF" fill="#1890FF" fillOpacity={0.2} strokeWidth={2} dot={{ fill: '#1890FF', r: 3 }} />
-        <Tooltip formatter={(value: any) => [`${Number(value).toFixed(2)}`, 'Impact Score']} />
-        <Legend verticalAlign="bottom" iconType="circle" iconSize={8} wrapperStyle={{ fontSize: '10px', fontWeight: 600 }} />
-      </RadarChart>
-    </ResponsiveContainer>
-  );
+  const IMPACT_COLORS = ["#1A5D1A", "#2E8B2E", "#458C21", "#52C41A", "#74B72E", "#98FB98"];
+  const renderImpact = () => {
+    const sorted = [...impactCategoriesData].sort((a, b) => b.value - a.value);
+    return (
+      <ResponsiveContainer width="100%" height="100%">
+        <BarChart data={sorted} layout="vertical" margin={{ top: 5, right: 30, left: 5, bottom: 5 }}>
+          <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="#F1F3F5" />
+          <XAxis type="number" axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: '#9CA3AF' }} tickFormatter={formatYAxis} />
+          <YAxis type="category" dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: '#4B5563', fontWeight: 600 }} width={110} />
+          <Tooltip
+            formatter={(value: any) => [`${Number(value).toFixed(2)}`, 'Impact Score']}
+            contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 4px 20px rgba(0,0,0,0.1)', fontSize: '12px', fontWeight: 600 }}
+            cursor={{ fill: '#F9FAFB' }}
+          />
+          <Bar dataKey="value" radius={[0, 6, 6, 0]} barSize={16} name="Impact Score">
+            {sorted.map((_entry, index) => (
+              <Cell key={`cell-${index}`} fill={IMPACT_COLORS[index % IMPACT_COLORS.length]} />
+            ))}
+          </Bar>
+        </BarChart>
+      </ResponsiveContainer>
+    );
+  };
 
   const renderPCFTrend = () => (
     <ResponsiveContainer width="100%" height="100%">
