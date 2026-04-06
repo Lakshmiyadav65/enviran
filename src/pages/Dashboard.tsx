@@ -64,6 +64,7 @@ const Dashboard: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const [expandedChart, setExpandedChart] = useState<string | null>(null);
+  const [timePeriod, setTimePeriod] = useState<string>("monthly");
   const { canViewDashboard, loading: permissionsLoading } = useDashboardPermissions();
 
   // Client State
@@ -828,12 +829,27 @@ const Dashboard: React.FC = () => {
           </div>
         )}
 
-        {/* Stats Grid - Keeping static for now or can be dynamic later */}
+        {/* Time Period Filter */}
+        <div className="flex justify-end mb-4">
+          <Select
+            value={timePeriod}
+            onChange={(value) => setTimePeriod(value)}
+            size="middle"
+            style={{ width: 160 }}
+            options={[
+              { value: "monthly", label: "Monthly" },
+              { value: "quarterly", label: "Quarterly" },
+              { value: "yearly", label: "Yearly" },
+            ]}
+          />
+        </div>
+
+        {/* Stats Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           <StatCard
             title="Total CO₂e Emissions"
             value="2,847 kg"
-            subValue="vs. previous period"
+            subValue={`vs. previous ${timePeriod === "monthly" ? "month" : timePeriod === "quarterly" ? "quarter" : "year"}`}
             trend={-12.3}
             icon={Leaf}
             iconBg="bg-green-100"
