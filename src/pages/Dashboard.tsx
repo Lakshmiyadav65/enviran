@@ -566,41 +566,64 @@ const Dashboard: React.FC = () => {
   const renderProductLifeCycle = () => {
     const total = lifeCycleData.reduce((sum, d) => sum + d.value, 0);
     const pieData = lifeCycleData.map(d => ({ ...d } as Record<string, any>));
-    const RADIAN = Math.PI / 180;
-    const renderPieLabel = ({ cx, cy, midAngle, outerRadius, value }: any) => {
-      const radius = outerRadius + 18;
-      const x = cx + radius * Math.cos(-midAngle * RADIAN);
-      const y = cy + radius * Math.sin(-midAngle * RADIAN);
-      const pct = total > 0 ? ((value / total) * 100).toFixed(1) : '0';
-      return (
-        <text x={x} y={y} textAnchor={x > cx ? 'start' : 'end'} dominantBaseline="central" fontSize={11} fontWeight={700} fill="#374151">
-          {`${pct}%`}
-        </text>
-      );
-    };
+    const maxValue = Math.max(...lifeCycleData.map(d => d.value), 1);
     return (
-      <ResponsiveContainer width="100%" height="100%">
-        <PieChart margin={{ top: 10, right: 20, bottom: 10, left: 20 }}>
-          <Pie
-            data={pieData}
-            cx="50%"
-            cy="45%"
-            innerRadius={55}
-            outerRadius={90}
-            paddingAngle={3}
-            dataKey="value"
-            nameKey="name"
-            label={renderPieLabel}
-            labelLine={{ stroke: '#9CA3AF', strokeWidth: 1 }}
-          >
-            {lifeCycleData.map((entry, index) => (
-              <Cell key={`cell-${index}`} fill={entry.color} />
-            ))}
-          </Pie>
-          <Tooltip formatter={(value: any) => [`${Number(value).toFixed(2)} kg CO₂e`, 'Emission']} />
-          <Legend verticalAlign="bottom" iconType="circle" iconSize={8} wrapperStyle={{ fontSize: '10px', fontWeight: 600, paddingTop: '4px' }} />
-        </PieChart>
-      </ResponsiveContainer>
+      <div className="flex items-center h-full gap-4">
+        {/* Donut Chart - left side */}
+        <div className="relative w-[45%] h-full flex-shrink-0">
+          <ResponsiveContainer width="100%" height="100%">
+            <PieChart>
+              <Pie
+                data={pieData}
+                cx="50%"
+                cy="50%"
+                innerRadius={60}
+                outerRadius={90}
+                paddingAngle={2}
+                dataKey="value"
+                nameKey="name"
+                stroke="none"
+                cornerRadius={4}
+              >
+                {lifeCycleData.map((entry, index) => (
+                  <Cell key={`cell-${index}`} fill={entry.color} />
+                ))}
+              </Pie>
+              <Tooltip
+                formatter={(value: any, name: any) => [`${Number(value).toFixed(2)} kg CO₂e`, name]}
+                contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 4px 20px rgba(0,0,0,0.1)', fontSize: '12px', fontWeight: 600 }}
+              />
+            </PieChart>
+          </ResponsiveContainer>
+          {/* Center label */}
+          <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
+            <span className="text-[22px] font-extrabold text-gray-900">{total > 0 ? total.toFixed(0) : '0'}</span>
+            <span className="text-[10px] font-semibold text-gray-400 tracking-wide uppercase">kg CO₂e</span>
+          </div>
+        </div>
+
+        {/* Right side legend with mini bars */}
+        <div className="flex-1 flex flex-col justify-center gap-3 min-w-0">
+          {lifeCycleData.map((item, i) => {
+            const pct = total > 0 ? ((item.value / total) * 100).toFixed(1) : '0';
+            const barWidth = total > 0 ? (item.value / maxValue) * 100 : 0;
+            return (
+              <div key={i} className="flex flex-col gap-1">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2 min-w-0">
+                    <div className="w-2.5 h-2.5 rounded-full flex-shrink-0" style={{ backgroundColor: item.color }} />
+                    <span className="text-xs font-semibold text-gray-700 truncate">{item.name}</span>
+                  </div>
+                  <span className="text-xs font-bold text-gray-900 ml-2 flex-shrink-0">{pct}%</span>
+                </div>
+                <div className="w-full h-1.5 bg-gray-100 rounded-full overflow-hidden">
+                  <div className="h-full rounded-full transition-all duration-500" style={{ width: `${barWidth}%`, backgroundColor: item.color }} />
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </div>
     );
   };
 
