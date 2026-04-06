@@ -566,19 +566,31 @@ const Dashboard: React.FC = () => {
   const renderProductLifeCycle = () => {
     const total = lifeCycleData.reduce((sum, d) => sum + d.value, 0);
     const pieData = lifeCycleData.map(d => ({ ...d } as Record<string, any>));
+    const RADIAN = Math.PI / 180;
+    const renderPieLabel = ({ cx, cy, midAngle, outerRadius, value }: any) => {
+      const radius = outerRadius + 18;
+      const x = cx + radius * Math.cos(-midAngle * RADIAN);
+      const y = cy + radius * Math.sin(-midAngle * RADIAN);
+      const pct = total > 0 ? ((value / total) * 100).toFixed(1) : '0';
+      return (
+        <text x={x} y={y} textAnchor={x > cx ? 'start' : 'end'} dominantBaseline="central" fontSize={11} fontWeight={700} fill="#374151">
+          {`${pct}%`}
+        </text>
+      );
+    };
     return (
       <ResponsiveContainer width="100%" height="100%">
-        <PieChart>
+        <PieChart margin={{ top: 10, right: 20, bottom: 10, left: 20 }}>
           <Pie
             data={pieData}
             cx="50%"
             cy="45%"
             innerRadius={55}
-            outerRadius={95}
+            outerRadius={90}
             paddingAngle={3}
             dataKey="value"
             nameKey="name"
-            label={({ name, value }) => `${name}: ${total > 0 ? ((value / total) * 100).toFixed(1) : 0}%`}
+            label={renderPieLabel}
             labelLine={{ stroke: '#9CA3AF', strokeWidth: 1 }}
           >
             {lifeCycleData.map((entry, index) => (
