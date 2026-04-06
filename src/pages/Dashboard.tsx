@@ -856,6 +856,7 @@ const Dashboard: React.FC = () => {
             icon={RefreshCw}
             iconBg="bg-purple-100"
             iconColor="text-purple-600"
+            positiveIsGood
           />
           <StatCard
             title="Transport Emissions"
