@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
-import { Eye, EyeOff, AlertCircle } from "lucide-react";
+import { Eye, EyeOff, AlertCircle, Factory } from "lucide-react";
 import { useAuth } from "../../contexts/AuthContext";
 import LoadingSpinner from "../../components/LoadingSpinner";
 import Logo from "../../components/Logo";
@@ -14,7 +14,7 @@ const Login: React.FC = () => {
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
-  const { login, isAuthenticated } = useAuth();
+  const { login, isAuthenticated, updateUser } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -204,6 +204,30 @@ const Login: React.FC = () => {
               ) : (
                 "Sign In"
               )}
+            </button>
+
+            {/* Manufacturer Guest Login */}
+            <button
+              type="button"
+              onClick={() => {
+                const guestUser = {
+                  id: 'guest-manufacturer',
+                  userId: 'guest-manufacturer',
+                  name: 'Guest Manufacturer',
+                  email: 'guest@manufacturer.com',
+                  role: 'Manufacturer',
+                  department: '',
+                  phoneNumber: '',
+                };
+                localStorage.setItem('token', 'guest-token');
+                localStorage.setItem('user', JSON.stringify(guestUser));
+                updateUser(guestUser);
+                window.location.href = '/dashboard';
+              }}
+              className="w-full mt-3 bg-slate-800 text-white py-3 px-4 rounded-xl hover:bg-slate-900 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-slate-500 font-semibold transition-all flex items-center justify-center gap-2"
+            >
+              <Factory className="h-5 w-5" />
+              Continue as Manufacturer Guest
             </button>
           </form>
 

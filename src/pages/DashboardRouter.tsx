@@ -2,6 +2,7 @@ import React from "react";
 import { useLocation } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
 import SuperAdminDashboard from "./SuperAdminDashboard";
+import ManufacturerDashboard from "./ManufacturerDashboard";
 import Dashboard from "./Dashboard";
 
 const DashboardRouter: React.FC = () => {
@@ -27,7 +28,8 @@ const DashboardRouter: React.FC = () => {
     return <SuperAdminDashboard />;
   }
 
-  return <Dashboard />;
+  // Non-superadmin users (manufacturers) get the manufacturer dashboard
+  return <ManufacturerDashboard />;
 };
 
 export default DashboardRouter;

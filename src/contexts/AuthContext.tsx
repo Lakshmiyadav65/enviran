@@ -39,25 +39,27 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   });
 
   useEffect(() => {
-    // Dev bypass: auto-authenticate without API
-    const devUser: User = {
-      id: 'dev-user-1',
-      userId: 'dev-user-1',
-      name: 'Narasimha Goggi',
-      email: 'narasimha.goggi@enviguide.com',
-      role: 'Admin',
-      department: 'Engineering',
-      phoneNumber: '',
-    };
-    const devToken = 'dev-bypass-token';
-    authService.updateUserData(devUser);
-    localStorage.setItem('token', devToken);
-    setAuthState({
-      isAuthenticated: true,
-      user: devUser,
-      token: devToken,
-      loading: false,
-    });
+    // Restore session from localStorage if available
+    const token = localStorage.getItem('token');
+    const storedUser = localStorage.getItem('user');
+    if (token && storedUser) {
+      try {
+        const user = JSON.parse(storedUser) as User;
+        setAuthState({
+          isAuthenticated: true,
+          user,
+          token,
+          loading: false,
+        });
+      } catch {
+        // Invalid stored data, clear and show login
+        localStorage.removeItem('token');
+        localStorage.removeItem('user');
+        setAuthState(prev => ({ ...prev, loading: false }));
+      }
+    } else {
+      setAuthState(prev => ({ ...prev, loading: false }));
+    }
   }, []);
 
   const login = async (email: string, password: string) => {
