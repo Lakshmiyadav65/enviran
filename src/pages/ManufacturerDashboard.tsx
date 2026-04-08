@@ -330,7 +330,7 @@ const ManufacturerDashboard: React.FC = () => {
                 <BarChart
                   data={productEmissions}
                   layout="vertical"
-                  margin={{ top: 0, right: 20, left: 10, bottom: 0 }}
+                  margin={{ top: 0, right: 20, left: 0, bottom: 0 }}
                 >
                   <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="#F1F3F5" />
                   <XAxis type="number" axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: "#6B7280" }} />
@@ -339,8 +339,8 @@ const ManufacturerDashboard: React.FC = () => {
                     dataKey="name"
                     axisLine={false}
                     tickLine={false}
-                    tick={{ fontSize: 10, fill: "#374151", fontWeight: 500 }}
-                    width={120}
+                    tick={{ fontSize: 11, fill: "#374151", fontWeight: 500 }}
+                    width={150}
                   />
                   <Tooltip
                     contentStyle={{ borderRadius: "12px", border: "1px solid #E5E7EB", fontSize: "12px" }}
