@@ -307,6 +307,10 @@ const ManufacturerDashboard: React.FC = () => {
                     iconType="circle"
                     iconSize={8}
                     wrapperStyle={{ fontSize: "11px", fontWeight: 600 }}
+                    formatter={(value: string) => {
+                      const entry = lifecycleBreakdown.find((d) => d.name === value);
+                      return entry ? `${value} (${entry.value}%)` : value;
+                    }}
                   />
                 </PieChart>
               </ResponsiveContainer>
