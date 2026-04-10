@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
-import { Eye, EyeOff, AlertCircle, Factory } from "lucide-react";
+import { Eye, EyeOff, AlertCircle, Factory, ShieldCheck } from "lucide-react";
 import { useAuth } from "../../contexts/AuthContext";
 import LoadingSpinner from "../../components/LoadingSpinner";
 import Logo from "../../components/Logo";
@@ -204,6 +204,30 @@ const Login: React.FC = () => {
               ) : (
                 "Sign In"
               )}
+            </button>
+
+            {/* Super Admin Guest Login */}
+            <button
+              type="button"
+              onClick={() => {
+                const guestUser = {
+                  id: 'guest-superadmin',
+                  userId: 'guest-superadmin',
+                  name: 'Guest Super Admin',
+                  email: 'guest@superadmin.com',
+                  role: 'SuperAdmin',
+                  department: '',
+                  phoneNumber: '',
+                };
+                localStorage.setItem('token', 'guest-token');
+                localStorage.setItem('user', JSON.stringify(guestUser));
+                updateUser(guestUser);
+                window.location.href = '/dashboard';
+              }}
+              className="w-full mt-3 bg-green-700 text-white py-3 px-4 rounded-xl hover:bg-green-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 font-semibold transition-all flex items-center justify-center gap-2"
+            >
+              <ShieldCheck className="h-5 w-5" />
+              Continue as Super Admin
             </button>
 
             {/* Manufacturer Guest Login */}

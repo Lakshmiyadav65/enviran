@@ -1,0 +1,11 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(shopt -s dotglob)",
+      "Bash(mv \"c:/Users/laksh/Downloads/Projects/Enviran/PCF-FRONTEND\"/* \"c:/Users/laksh/Downloads/Projects/Enviran/\")",
+      "Bash(git add:*)",
+      "Bash(git commit -m ':*)",
+      "Bash(echo \"EXIT=$?\")"
+    ]
+  }
+}
