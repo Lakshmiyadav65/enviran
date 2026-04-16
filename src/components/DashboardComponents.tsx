@@ -205,19 +205,24 @@ export const DashboardHeader: React.FC<DashboardHeaderProps> = ({
                     </div>
                 </div>
 
-                <div className="flex items-center gap-2 flex-wrap">
-                    <div className="flex items-center bg-white/15 backdrop-blur-sm border border-white/20 rounded-xl p-1">
-                        {(["month", "quarter", "custom"] as const).map((r) => (
-                            <button
-                                key={r}
-                                onClick={() => onDateRangeChange(r)}
-                                className={`text-xs font-semibold px-3 py-1.5 rounded-lg transition-all ${
-                                    dateRange === r ? "bg-white text-green-700 shadow" : "text-white/80 hover:text-white"
-                                }`}
-                            >
-                                {r === "month" ? "Month" : r === "quarter" ? "Quarter" : "Custom"}
-                            </button>
-                        ))}
+                <div className="flex flex-col items-end gap-2.5">
+                    <div className="flex items-center gap-2">
+                        <div className="flex items-center bg-white/15 backdrop-blur-sm border border-white/20 rounded-xl p-1">
+                            {(["month", "quarter", "custom"] as const).map((r) => (
+                                <button
+                                    key={r}
+                                    onClick={() => onDateRangeChange(r)}
+                                    className={`text-xs font-semibold px-3 py-1.5 rounded-lg transition-all ${
+                                        dateRange === r ? "bg-white text-green-700 shadow" : "text-white/80 hover:text-white"
+                                    }`}
+                                >
+                                    {r === "month" ? "Month" : r === "quarter" ? "Quarter" : "Custom"}
+                                </button>
+                            ))}
+                        </div>
+                        <button className="bg-white/15 backdrop-blur-sm border border-white/20 rounded-xl text-xs font-semibold text-white px-3 py-2 hover:bg-white/20 flex items-center gap-1.5">
+                            <Download className="w-3.5 h-3.5" /> Export
+                        </button>
                     </div>
 
                     {dateRange === "custom" && (
@@ -225,14 +230,11 @@ export const DashboardHeader: React.FC<DashboardHeaderProps> = ({
                             value={customDates}
                             onChange={(dates) => onCustomDatesChange?.(dates as [any, any] | null)}
                             size="small"
-                            className="!bg-white/15 !backdrop-blur-sm !border-white/20 !rounded-xl [&_.ant-picker-input>input]:!text-white [&_.ant-picker-input>input::placeholder]:!text-white/60 [&_.ant-picker-separator]:!text-white/80 [&_.ant-picker-suffix]:!text-white/80 [&_.ant-picker-clear]:!text-white/80 [&_.ant-picker-active-bar]:!bg-white"
+                            className="!bg-white/15 !backdrop-blur-sm !border-white/20 !rounded-xl !h-8 [&_.ant-picker-input>input]:!text-white [&_.ant-picker-input>input::placeholder]:!text-white/60 [&_.ant-picker-separator]:!text-white/80 [&_.ant-picker-suffix]:!text-white/80 [&_.ant-picker-clear]:!text-white/80 [&_.ant-picker-active-bar]:!bg-white"
                             suffixIcon={<Calendar className="w-3.5 h-3.5 text-white/80" />}
+                            style={{ width: 240 }}
                         />
                     )}
-
-                    <button className="bg-white/15 backdrop-blur-sm border border-white/20 rounded-xl text-xs font-semibold text-white px-3 py-2 hover:bg-white/20 flex items-center gap-1.5">
-                        <Download className="w-3.5 h-3.5" /> Export
-                    </button>
                 </div>
             </div>
         </div>
