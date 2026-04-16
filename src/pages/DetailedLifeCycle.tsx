@@ -45,6 +45,7 @@ const COLOR_MAP: Record<string, string> = {
 const DetailedLifeCycle: React.FC = () => {
     const navigate = useNavigate();
     const location = useLocation();
+    const fromSuperAdmin = location.state?.fromSuperAdmin;
     const [expandedChart, setExpandedChart] = useState<string | null>(null);
     const [clients, setClients] = useState<Client[]>([]);
     const [selectedClient, setSelectedClient] = useState<Client | null>(null);
@@ -129,7 +130,7 @@ const DetailedLifeCycle: React.FC = () => {
                 <DetailedHeader
                     title="Detailed Life Cycle Analysis"
                     subtitle="Comprehensive breakdown of emissions across all product life cycle stages"
-                    onBack={() => navigate("/dashboard", { state: { selectedClient } })}
+                    onBack={() => navigate("/dashboard", { state: { selectedClient, fromSuperAdmin } })}
                     icon={RefreshCw}
                 />
 

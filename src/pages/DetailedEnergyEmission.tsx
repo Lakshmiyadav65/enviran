@@ -48,6 +48,7 @@ interface ProcessEnergyItem {
 const DetailedEnergyEmission: React.FC = () => {
     const navigate = useNavigate();
     const location = useLocation();
+    const fromSuperAdmin = location.state?.fromSuperAdmin;
     const [expandedChart, setExpandedChart] = useState<string | null>(null);
 
     // State
@@ -275,7 +276,7 @@ const DetailedEnergyEmission: React.FC = () => {
                 <DetailedHeader
                     title="Energy Consumption Emission Analysis"
                     subtitle="Comprehensive breakdown of emissions associated with different energy sources across operations"
-                    onBack={() => navigate("/dashboard", { state: { selectedClient } })}
+                    onBack={() => navigate("/dashboard", { state: { selectedClient, fromSuperAdmin } })}
                     icon={Zap}
                 />
 

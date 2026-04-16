@@ -61,6 +61,7 @@ const DEFAULT_TOP_COUNT = 4;
 const DetailedRawMaterialEmission: React.FC = () => {
     const navigate = useNavigate();
     const location = useLocation();
+    const fromSuperAdmin = location.state?.fromSuperAdmin;
     const [expandedChart, setExpandedChart] = useState<string | null>(null);
 
     // State for Dropdowns
@@ -757,7 +758,7 @@ const DetailedRawMaterialEmission: React.FC = () => {
                 <DetailedHeader
                     title="Raw Material Emission Details"
                     subtitle="Comprehensive breakdown of material-specific carbon footprint"
-                    onBack={() => navigate("/dashboard", { state: { selectedClient } })}
+                    onBack={() => navigate("/dashboard", { state: { selectedClient, fromSuperAdmin } })}
                     icon={Box}
                 />
 

@@ -48,6 +48,7 @@ const FALLBACK_COMPARISON = [
 const DetailedImpactCategories: React.FC = () => {
     const navigate = useNavigate();
     const location = useLocation();
+    const fromSuperAdmin = location.state?.fromSuperAdmin;
     const [expandedChart, setExpandedChart] = useState<string | null>(null);
 
     const [clients, setClients] = useState<any[]>([]);
@@ -308,7 +309,7 @@ const DetailedImpactCategories: React.FC = () => {
                 <DetailedHeader
                     title="Impact Categories - Detailed View"
                     subtitle="Comprehensive overview of environmental impact values across multiple categories"
-                    onBack={() => navigate("/dashboard", { state: { selectedClient } })}
+                    onBack={() => navigate("/dashboard", { state: { selectedClient, fromSuperAdmin } })}
                     icon={Activity}
                 />
 

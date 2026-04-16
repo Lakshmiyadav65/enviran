@@ -63,6 +63,7 @@ const Dashboard: React.FC = () => {
   const [customDates, setCustomDates] = useState<[any, any] | null>(null);
   const timePeriod = dateRange === "month" ? "monthly" : dateRange === "quarter" ? "quarterly" : "monthly";
   const { canViewDashboard, loading: permissionsLoading } = useDashboardPermissions();
+  const isFromSuperAdmin = location.state?.fromSuperAdmin;
 
   // Client State
   const [clients, setClients] = useState<Client[]>([]);
@@ -808,7 +809,7 @@ const Dashboard: React.FC = () => {
 
   const navigateToDetail = (path: string) => {
     if (selectedClient) {
-      navigate(path, { state: { selectedClient } });
+      navigate(path, { state: { selectedClient, fromSuperAdmin: !!isFromSuperAdmin } });
     } else {
       navigate(path);
     }
@@ -829,8 +830,6 @@ const Dashboard: React.FC = () => {
   if (!canViewDashboard) {
     return <Welcome />;
   }
-
-  const isFromSuperAdmin = location.state?.fromSuperAdmin;
 
   return (
     <div className="flex-1 overflow-auto bg-[#F8F9FA] p-8 pt-6">

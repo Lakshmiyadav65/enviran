@@ -74,6 +74,7 @@ const FALLBACK_FORECASTED: ForecastedData[] = [
 const DetailedPCFTrend: React.FC = () => {
     const navigate = useNavigate();
     const location = useLocation();
+    const fromSuperAdmin = location.state?.fromSuperAdmin;
     const [expandedChart, setExpandedChart] = useState<string | null>(null);
 
     // Dropdown state
@@ -500,7 +501,7 @@ const DetailedPCFTrend: React.FC = () => {
                 <DetailedHeader
                     title="PCF Visualisation Trends"
                     subtitle="Detailed emission insights across life cycle stages"
-                    onBack={() => navigate("/dashboard", { state: { selectedClient } })}
+                    onBack={() => navigate("/dashboard", { state: { selectedClient, fromSuperAdmin } })}
                     icon={LineChartIcon}
                 />
 

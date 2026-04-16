@@ -56,6 +56,7 @@ const COLOR_PALETTE = ["#D9F5C5", "#B3E699", "#8CD76D", "#66C841", "#40B915", "#
 const DetailedTransportationEmission: React.FC = () => {
     const navigate = useNavigate();
     const location = useLocation();
+    const fromSuperAdmin = location.state?.fromSuperAdmin;
     const [expandedChart, setExpandedChart] = useState<string | null>(null);
 
     // Dropdown State
@@ -532,7 +533,7 @@ const DetailedTransportationEmission: React.FC = () => {
                 <DetailedHeader
                     title="Transportation Emission Details"
                     subtitle="Comprehensive analysis of emissions from various transportation methods"
-                    onBack={() => navigate("/dashboard", { state: { selectedClient } })}
+                    onBack={() => navigate("/dashboard", { state: { selectedClient, fromSuperAdmin } })}
                     icon={Truck}
                 />
 

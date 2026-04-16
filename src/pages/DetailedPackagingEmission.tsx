@@ -44,6 +44,7 @@ const packagingEmissionData = [
 const DetailedPackagingEmission: React.FC = () => {
     const navigate = useNavigate();
     const location = useLocation();
+    const fromSuperAdmin = location.state?.fromSuperAdmin;
     const [expandedChart, setExpandedChart] = useState<string | null>(null);
 
     // State
@@ -170,7 +171,7 @@ const DetailedPackagingEmission: React.FC = () => {
                 <DetailedHeader
                     title="Packaging Emission Details"
                     subtitle="In-depth analysis of packaging carbon footprint"
-                    onBack={() => navigate("/dashboard", { state: { selectedClient } })}
+                    onBack={() => navigate("/dashboard", { state: { selectedClient, fromSuperAdmin } })}
                     icon={Package}
                 />
 

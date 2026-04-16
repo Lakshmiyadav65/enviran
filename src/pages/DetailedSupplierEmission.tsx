@@ -70,6 +70,7 @@ const CustomTooltip = ({ active, payload, label }: any) => {
 const DetailedSupplierEmission: React.FC = () => {
     const navigate = useNavigate();
     const location = useLocation();
+    const fromSuperAdmin = location.state?.fromSuperAdmin;
     const [expandedChart, setExpandedChart] = useState<string | null>(null);
 
     // State for Dropdowns
@@ -370,7 +371,7 @@ const DetailedSupplierEmission: React.FC = () => {
                 <DetailedHeader
                     title="Comprehensive Supplier Emission Breakdown"
                     subtitle="Detailed analysis of carbon footprint across all supplier partners"
-                    onBack={() => navigate("/dashboard", { state: { selectedClient } })}
+                    onBack={() => navigate("/dashboard", { state: { selectedClient, fromSuperAdmin } })}
                     icon={Truck}
                 />
 

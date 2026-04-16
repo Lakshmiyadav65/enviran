@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import {
     Users,
     ChevronDown,
@@ -72,6 +72,8 @@ interface Supplier {
 
 const DetailedWasteEmission: React.FC = () => {
     const navigate = useNavigate();
+    const location = useLocation();
+    const fromSuperAdmin = location.state?.fromSuperAdmin;
     const [expandedChart, setExpandedChart] = useState<string | null>(null);
     const [clients, setClients] = useState<any[]>([]);
     const [suppliers, setSuppliers] = useState<any[]>([]);
@@ -187,7 +189,7 @@ const DetailedWasteEmission: React.FC = () => {
                 <DetailedHeader
                     title="Waste Emission Details"
                     subtitle="Comprehensive analysis of emissions caused by waste generation and disposal"
-                    onBack={() => navigate("/dashboard", { state: { selectedClient } })}
+                    onBack={() => navigate("/dashboard", { state: { selectedClient, fromSuperAdmin } })}
                     icon={Trash2}
                 />
 

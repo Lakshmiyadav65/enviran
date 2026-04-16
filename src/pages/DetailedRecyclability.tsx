@@ -58,6 +58,7 @@ const FALLBACK_RECYCLABILITY: RecyclabilityItem[] = [
 const DetailedRecyclability: React.FC = () => {
     const navigate = useNavigate();
     const location = useLocation();
+    const fromSuperAdmin = location.state?.fromSuperAdmin;
     const [expandedChart, setExpandedChart] = useState<string | null>(null);
 
     const [clients, setClients] = useState<Client[]>([]);
@@ -473,7 +474,7 @@ const DetailedRecyclability: React.FC = () => {
                 <DetailedHeader
                     title="Recyclability Metrics - Detailed View"
                     subtitle="Comprehensive analysis of material recyclability and circularity metrics across product components"
-                    onBack={() => navigate("/dashboard", { state: { selectedClient } })}
+                    onBack={() => navigate("/dashboard", { state: { selectedClient, fromSuperAdmin } })}
                     icon={RefreshCw}
                 />
 
