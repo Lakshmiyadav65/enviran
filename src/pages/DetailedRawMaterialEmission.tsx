@@ -25,7 +25,9 @@ import {
 import {
     DetailedHeader,
     ChartCard,
-    ChartModal
+    ChartModal,
+    ChartTooltip,
+    chartTooltipCursor
 } from "../components/DashboardComponents";
 import dashboardService from "../lib/dashboardService";
 import { getMaterialsMaterialTypeDropdown } from "../lib/ecoInventService";
@@ -482,7 +484,7 @@ const DetailedRawMaterialEmission: React.FC = () => {
                     <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#F1F3F5" />
                     <XAxis dataKey="displayName" axisLine={false} tickLine={false} tick={<WrappedTick />} interval={0} />
                     <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: '#4B5563', fontWeight: 500 }} tickFormatter={formatYAxisVal} />
-                    <Tooltip cursor={{ fill: '#F9FAFB' }} labelFormatter={(_: any, p: any) => p?.[0]?.payload?.name || _} />
+                    <Tooltip content={<ChartTooltip />} cursor={chartTooltipCursor} />
                     <Legend verticalAlign="top" align="center" iconType="square" iconSize={10} wrapperStyle={{ fontSize: '12px', fontWeight: 'bold', paddingBottom: '10px' }} />
                     <Bar dataKey="energy" fill="#458C21" radius={[4, 4, 0, 0]} barSize={isModal ? 60 : 30} name="Energy Used (kWh/unit)" />
                     <Bar dataKey="emission" fill="#52C41A" radius={[4, 4, 0, 0]} barSize={isModal ? 60 : 30} name="CO₂e (kg/unit)" />
@@ -505,7 +507,7 @@ const DetailedRawMaterialEmission: React.FC = () => {
                     <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#F1F3F5" />
                     <XAxis dataKey="displayName" axisLine={false} tickLine={false} tick={<WrappedTick />} interval={0} />
                     <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: '#4B5563', fontWeight: 500 }} tickFormatter={formatYAxisVal} />
-                    <Tooltip cursor={{ fill: '#F9FAFB' }} labelFormatter={(_: any, p: any) => p?.[0]?.payload?.name || _} />
+                    <Tooltip content={<ChartTooltip />} cursor={chartTooltipCursor} />
                     <Legend verticalAlign="top" align="center" iconType="square" iconSize={10} wrapperStyle={{ fontSize: '12px', fontWeight: 'bold', paddingBottom: '10px' }} />
                     {energyTypes.map((type, index) => (
                         <Bar key={type} dataKey={type} fill={COLOR_PALETTE[index % COLOR_PALETTE.length]} radius={[4, 4, 0, 0]} name={type.charAt(0).toUpperCase() + type.slice(1)} />
@@ -529,7 +531,7 @@ const DetailedRawMaterialEmission: React.FC = () => {
                     <XAxis dataKey="displayName" axisLine={false} tickLine={false} tick={<WrappedTick />} interval={0} />
                     <YAxis yAxisId="left" orientation="left" axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: '#4B5563', fontWeight: 500 }} tickFormatter={formatYAxisVal} />
                     <YAxis yAxisId="right" orientation="right" axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: '#4B5563', fontWeight: 500 }} tickFormatter={(v) => `${v}%`} />
-                    <Tooltip labelFormatter={(_: any, p: any) => p?.[0]?.payload?.name || _} />
+                    <Tooltip content={<ChartTooltip />} cursor={chartTooltipCursor} />
                     <Legend verticalAlign="top" align="center" iconType="square" iconSize={10} wrapperStyle={{ fontSize: '12px', fontWeight: 'bold', paddingBottom: '10px' }} />
                     <Bar yAxisId="left" dataKey="contribution" fill="#52C41A" radius={[4, 4, 0, 0]} name="Emission Contribution (kg CO₂e)" barSize={isModal ? 60 : 30} />
                     <Line yAxisId="right" type="monotone" dataKey="share" stroke="#1A5D1A" strokeWidth={3} name="Share of Total (%)" dot={{ fill: '#1A5D1A', r: 4 }} activeDot={{ r: 6 }} />
@@ -551,7 +553,7 @@ const DetailedRawMaterialEmission: React.FC = () => {
                     <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#F1F3F5" />
                     <XAxis dataKey="displayName" axisLine={false} tickLine={false} tick={<WrappedTick />} interval={0} />
                     <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: '#4B5563', fontWeight: 500 }} tickFormatter={formatYAxisVal} />
-                    <Tooltip cursor={{ fill: '#F9FAFB' }} labelFormatter={(_: any, p: any) => p?.[0]?.payload?.name || _} />
+                    <Tooltip content={<ChartTooltip />} cursor={chartTooltipCursor} />
                     <Legend verticalAlign="top" align="center" iconType="square" iconSize={10} wrapperStyle={{ fontSize: '12px', fontWeight: 'bold', paddingBottom: '10px' }} />
                     <Bar dataKey="virgin" fill="#458C21" radius={[4, 4, 0, 0]} barSize={isModal ? 60 : 30} name="Virgin Material (kg CO₂e/kg)" />
                     <Bar dataKey="recycled" fill="#52C41A" radius={[4, 4, 0, 0]} barSize={isModal ? 60 : 30} name="Recycled Material (kg CO₂e/kg)" />
@@ -573,7 +575,7 @@ const DetailedRawMaterialEmission: React.FC = () => {
                     <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#F1F3F5" />
                     <XAxis dataKey="displayName" axisLine={false} tickLine={false} tick={<WrappedTick />} interval={0} />
                     <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: '#4B5563', fontWeight: 500 }} tickFormatter={(v) => `${v}%`} />
-                    <Tooltip cursor={{ fill: '#F9FAFB' }} labelFormatter={(_: any, p: any) => p?.[0]?.payload?.name || _} />
+                    <Tooltip content={<ChartTooltip />} cursor={chartTooltipCursor} />
                     <Legend verticalAlign="top" align="center" iconType="square" iconSize={10} wrapperStyle={{ fontSize: '12px', fontWeight: 'bold', paddingBottom: '10px' }} />
                     <Bar dataKey="value" radius={[4, 4, 0, 0]} barSize={isModal ? 80 : 40} name="Share of Total (%)">
                         {displayedShareData.map((entry, index) => (

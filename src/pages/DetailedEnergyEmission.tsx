@@ -19,7 +19,9 @@ import {
 import {
     DetailedHeader,
     ChartCard,
-    ChartModal
+    ChartModal,
+    ChartTooltip,
+    chartTooltipCursor
 } from "../components/DashboardComponents";
 import dashboardService from "../lib/dashboardService";
 
@@ -229,7 +231,7 @@ const DetailedEnergyEmission: React.FC = () => {
                     <XAxis dataKey="displayName" axisLine={false} tickLine={false} tick={<WrappedTick />} interval={0} />
                     <YAxis yAxisId="left" axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: '#4B5563', fontWeight: 500 }} tickFormatter={(v) => `${v}%`} />
                     <YAxis yAxisId="right" orientation="right" axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: '#4B5563', fontWeight: 500 }} tickFormatter={(v) => v >= 1000 ? `${(v/1000).toFixed(0)}k` : v} />
-                    <Tooltip labelFormatter={(_: any, p: any) => p?.[0]?.payload?.name || _} />
+                    <Tooltip content={<ChartTooltip />} cursor={chartTooltipCursor} />
                     <Legend verticalAlign="bottom" align="center" iconType="square" iconSize={10} wrapperStyle={{ fontSize: '10px', fontWeight: 'bold', paddingTop: '20px' }} />
                     <Bar yAxisId="left" dataKey="share" fill="#52C41A" radius={[4, 4, 0, 0]} name="Energy Share (%)" />
                     <Bar yAxisId="right" dataKey="emission" fill="#B3E699" radius={[4, 4, 0, 0]} name="Total Emission (kg CO₂e)" />
@@ -260,7 +262,7 @@ const DetailedEnergyEmission: React.FC = () => {
                         tickFormatter={(value: string) => value.length > 14 ? value.slice(0, 12) + '..' : value}
                     />
                     <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: '#4B5563', fontWeight: 500 }} tickFormatter={(value) => value >= 1000 ? `${(value / 1000).toFixed(0)}k` : value} />
-                    <Tooltip labelFormatter={(_: any, p: any) => p?.[0]?.payload?.name || _} />
+                    <Tooltip content={<ChartTooltip />} cursor={chartTooltipCursor} />
                     <Legend verticalAlign="bottom" align="center" iconType="square" iconSize={10} wrapperStyle={{ fontSize: '10px', fontWeight: 'bold', paddingTop: '20px' }} />
                     <Bar dataKey="consumption" fill="#1A5D1A" radius={[4, 4, 0, 0]} name="Energy Consumption (kWh)" />
                     {/* Keeping emission bar but it will be 0/empty based on current data understanding */}

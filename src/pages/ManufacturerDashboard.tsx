@@ -51,6 +51,7 @@ import {
   ReferenceLine,
 } from "recharts";
 import { useAuth } from "../contexts/AuthContext";
+import { ChartTooltip, chartTooltipCursor } from "../components/DashboardComponents";
 
 // ── Mock Data ──────────────────────────────────────────────
 
@@ -914,17 +915,7 @@ const ManufacturerDashboard: React.FC = () => {
                   <CartesianGrid strokeDasharray="3 3" stroke="#F1F3F5" />
                   <XAxis dataKey="month" axisLine={false} tickLine={false} tick={{ fontSize: 11, fill: "#6B7280" }} />
                   <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 11, fill: "#6B7280" }} />
-                  <Tooltip
-                    contentStyle={{ borderRadius: "12px", border: "1px solid #E5E7EB", fontSize: "12px" }}
-                    formatter={(value: any, name?: string) => {
-                      const labels: Record<string, string> = {
-                        emissions: "Actual",
-                        target: "Target",
-                        lastYear: "Last Year",
-                      };
-                      return [`${value.toLocaleString()} kg`, labels[name || ""] || name || ""];
-                    }}
-                  />
+                  <Tooltip content={<ChartTooltip />} />
                   <Area
                     type="monotone"
                     dataKey="emissions"
@@ -983,7 +974,7 @@ const ManufacturerDashboard: React.FC = () => {
                       <Cell key={`cell-${index}`} fill={entry.color} />
                     ))}
                   </Pie>
-                  <Tooltip formatter={(value: any) => [`${value}%`, "Share"]} />
+                  <Tooltip content={<ChartTooltip />} />
                   <Legend
                     verticalAlign="bottom"
                     iconType="circle"
@@ -1032,11 +1023,8 @@ const ManufacturerDashboard: React.FC = () => {
                     width={150}
                   />
                   <Tooltip
-                    contentStyle={{ borderRadius: "12px", border: "1px solid #E5E7EB", fontSize: "12px" }}
-                    formatter={(value: any, name?: string) => [
-                      `${value.toLocaleString()} kg`,
-                      name === "emission" ? "Actual" : "Target",
-                    ]}
+                    content={<ChartTooltip />}
+                    cursor={chartTooltipCursor}
                   />
                   <Bar dataKey="emission" radius={[0, 4, 4, 0]} barSize={14} name="emission">
                     {productEmissions.map((entry, index) => (

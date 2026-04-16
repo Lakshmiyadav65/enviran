@@ -30,7 +30,9 @@ import {
   StatCard,
   ChartCard,
   DashboardHeader,
-  ChartModal
+  ChartModal,
+  ChartTooltip,
+  chartTooltipCursor
 } from "../components/DashboardComponents";
 import { useDashboardPermissions } from "../contexts/PermissionContext";
 import Welcome from "./Welcome";
@@ -587,10 +589,7 @@ const Dashboard: React.FC = () => {
                   <Cell key={`cell-${index}`} fill={entry.color} />
                 ))}
               </Pie>
-              <Tooltip
-                formatter={(value: any, name: any) => [`${Number(value).toFixed(2)} kg CO₂e`, name]}
-                contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 4px 20px rgba(0,0,0,0.1)', fontSize: '12px', fontWeight: 600 }}
-              />
+              <Tooltip content={<ChartTooltip />} />
             </PieChart>
           </ResponsiveContainer>
           {/* Center label */}
@@ -633,7 +632,7 @@ const Dashboard: React.FC = () => {
           <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="#F1F3F5" />
           <XAxis type="number" axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: '#4B5563' }} tickFormatter={formatYAxis} />
           <YAxis type="category" dataKey="displayName" axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: '#4B5563', fontWeight: 500 }} width={100} />
-          <Tooltip formatter={(value: any) => [`${Number(value).toFixed(2)} kg CO₂e`, 'Emission']} labelFormatter={(_: any, p: any) => p?.[0]?.payload?.name || _} />
+          <Tooltip content={<ChartTooltip />} cursor={chartTooltipCursor} />
           <Bar dataKey="value" fill="#52C41A" radius={[0, 4, 4, 0]} barSize={18} name="Emission (kg CO₂e)" />
         </BarChart>
       </ResponsiveContainer>
@@ -648,7 +647,7 @@ const Dashboard: React.FC = () => {
           <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#F1F3F5" />
           <XAxis dataKey="displayName" axisLine={false} tickLine={false} tick={<WrappedTick />} interval={0} />
           <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: '#4B5563', fontWeight: 500 }} tickFormatter={formatYAxis} />
-          <Tooltip cursor={{ fill: '#F9FAFB' }} labelFormatter={(_: any, p: any) => p?.[0]?.payload?.name || _} />
+          <Tooltip content={<ChartTooltip />} cursor={chartTooltipCursor} />
           <Legend verticalAlign="bottom" align="center" iconType="square" iconSize={10} wrapperStyle={{ fontSize: '10px', fontWeight: 'bold', paddingTop: '10px' }} />
           <Bar dataKey="value" fill="#52C41A" radius={[4, 4, 0, 0]} barSize={40} name="Emission (kg CO₂e)" />
         </BarChart>
@@ -692,10 +691,8 @@ const Dashboard: React.FC = () => {
           <XAxis type="number" axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: '#9CA3AF' }} tickFormatter={formatYAxis} />
           <YAxis type="category" dataKey="displayName" axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: '#4B5563', fontWeight: 600 }} width={110} />
           <Tooltip
-            formatter={(value: any) => [`${Number(value).toFixed(2)} kg CO₂e`, 'Emission']}
-            labelFormatter={(_: any, p: any) => p?.[0]?.payload?.name || _}
-            contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 4px 20px rgba(0,0,0,0.1)', fontSize: '12px', fontWeight: 600 }}
-            cursor={{ fill: '#F9FAFB' }}
+            content={<ChartTooltip />}
+            cursor={chartTooltipCursor}
           />
           <Bar dataKey="value" radius={[0, 6, 6, 0]} barSize={16} name="Emission (kg CO₂e)">
             {sorted.map((_entry, index) => (
@@ -719,7 +716,7 @@ const Dashboard: React.FC = () => {
         <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#F1F3F5" />
         <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: '#4B5563', fontWeight: 500 }} interval={0} />
         <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: '#4B5563', fontWeight: 500 }} tickFormatter={formatYAxis} />
-        <Tooltip formatter={(value: any) => [`${Number(value).toFixed(2)} kg CO₂e`, 'Energy Emission']} />
+        <Tooltip content={<ChartTooltip />} />
         <Legend verticalAlign="bottom" align="center" iconType="circle" iconSize={8} wrapperStyle={{ fontSize: '10px', fontWeight: 600, paddingTop: '10px' }} />
         <Area type="monotone" dataKey="value" stroke="#52C41A" strokeWidth={2} fill="url(#energyGradient)" name="Energy Emission (kg CO₂e)" dot={{ fill: '#52C41A', r: 4 }} activeDot={{ r: 6 }} />
       </AreaChart>
@@ -746,7 +743,7 @@ const Dashboard: React.FC = () => {
               <Cell key={`cell-${index}`} fill={RECYCLE_COLORS[index % RECYCLE_COLORS.length]} />
             ))}
           </Pie>
-          <Tooltip formatter={(value: any, _: any, entry: any) => [`${Number(value).toFixed(2)} kg`, entry?.payload?.name || 'Material']} />
+          <Tooltip content={<ChartTooltip />} />
           <Legend verticalAlign="bottom" iconType="circle" iconSize={8} wrapperStyle={{ fontSize: '10px', fontWeight: 600, paddingTop: '4px' }} />
         </PieChart>
       </ResponsiveContainer>
@@ -760,7 +757,7 @@ const Dashboard: React.FC = () => {
         <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="#F1F3F5" />
         <XAxis type="number" axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: '#4B5563' }} tickFormatter={formatYAxis} />
         <YAxis type="category" dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: '#4B5563', fontWeight: 500 }} width={90} />
-        <Tooltip formatter={(value: any) => [`${Number(value).toFixed(2)} kg CO₂e`, 'Waste Emission']} />
+        <Tooltip content={<ChartTooltip />} cursor={chartTooltipCursor} />
         <Bar dataKey="value" radius={[0, 6, 6, 0]} barSize={20} name="Waste Emission (kg CO₂e)">
           {wasteData.map((_entry, index) => (
             <Cell key={`cell-${index}`} fill={WASTE_COLORS[index % WASTE_COLORS.length]} />
@@ -780,9 +777,8 @@ const Dashboard: React.FC = () => {
           <XAxis type="number" axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: '#9CA3AF' }} tickFormatter={formatYAxis} />
           <YAxis type="category" dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: '#4B5563', fontWeight: 600 }} width={110} />
           <Tooltip
-            formatter={(value: any) => [`${Number(value).toFixed(2)}`, 'Impact Score']}
-            contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 4px 20px rgba(0,0,0,0.1)', fontSize: '12px', fontWeight: 600 }}
-            cursor={{ fill: '#F9FAFB' }}
+            content={<ChartTooltip />}
+            cursor={chartTooltipCursor}
           />
           <Bar dataKey="value" radius={[0, 6, 6, 0]} barSize={16} name="Impact Score">
             {sorted.map((_entry, index) => (
@@ -800,7 +796,7 @@ const Dashboard: React.FC = () => {
         <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#F1F3F5" />
         <XAxis dataKey="month" axisLine={false} tickLine={false} tick={{ fontSize: 9, fill: '#4B5563', fontWeight: 500 }} interval={Math.max(0, Math.floor(pcfTrendData.length / 8))} />
         <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: '#4B5563', fontWeight: 500 }} tickFormatter={formatYAxis} />
-        <Tooltip />
+        <Tooltip content={<ChartTooltip />} />
         <Legend verticalAlign="bottom" align="center" iconType="square" iconSize={10} wrapperStyle={{ fontSize: '10px', fontWeight: 'bold', paddingTop: '10px' }} />
         <Line type="linear" dataKey="value" stroke="#52C41A" strokeWidth={2} dot={{ fill: '#52C41A', strokeWidth: 1, r: 2 }} activeDot={{ r: 5 }} name="Total Emission (kg CO₂e)" />
       </LineChart>

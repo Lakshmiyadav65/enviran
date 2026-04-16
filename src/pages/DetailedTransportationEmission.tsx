@@ -21,7 +21,9 @@ import {
 import {
     DetailedHeader,
     ChartCard,
-    ChartModal
+    ChartModal,
+    ChartTooltip,
+    chartTooltipCursor
 } from "../components/DashboardComponents";
 import dashboardService from "../lib/dashboardService";
 import { getVehicleTypeDropdown } from "../lib/ecoInventService";
@@ -319,7 +321,7 @@ const DetailedTransportationEmission: React.FC = () => {
                     <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#F1F3F5" />
                     <XAxis dataKey="displayName" axisLine={false} tickLine={false} tick={<WrappedTick />} interval={0} />
                     <YAxis hide={true} domain={[0, 110]} />
-                    <Tooltip content={<CustomModeTooltip />} cursor={{ fill: '#F9FAFB' }} />
+                    <Tooltip content={<ChartTooltip />} cursor={chartTooltipCursor} />
                     <Legend verticalAlign="top" align="center" iconType="square" iconSize={10} wrapperStyle={{ fontSize: '11px', fontWeight: 'bold', paddingBottom: '10px' }} />
                     <Bar dataKey="distanceNorm" fill="#52C41A" radius={[4, 4, 0, 0]} barSize={isModal ? 30 : 16} name="Distance (km)" />
                     <Bar dataKey="emissionNorm" fill="#B3E699" radius={[4, 4, 0, 0]} barSize={isModal ? 30 : 16} name="CO₂e (kg)" />
@@ -382,7 +384,7 @@ const DetailedTransportationEmission: React.FC = () => {
                     <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#F1F3F5" />
                     <XAxis dataKey="displayName" axisLine={false} tickLine={false} tick={<WrappedTick />} interval={0} />
                     <YAxis hide={true} domain={[0, 110]} />
-                    <Tooltip content={<CustomCorrelationTooltip />} cursor={{ fill: '#F9FAFB' }} />
+                    <Tooltip content={<ChartTooltip />} cursor={chartTooltipCursor} />
                     <Legend verticalAlign="top" align="center" iconType="square" iconSize={10} wrapperStyle={{ fontSize: '11px', fontWeight: 'bold', paddingBottom: '10px' }} />
                     <Bar dataKey="distNorm" fill="#52C41A" radius={[4, 4, 0, 0]} barSize={isModal ? 30 : 18} name="Avg Distance (km)" />
                     <Bar dataKey="factorNorm" fill="#B3E699" radius={[4, 4, 0, 0]} barSize={isModal ? 30 : 18} name="Avg Emission Factor" />

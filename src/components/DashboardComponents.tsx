@@ -242,6 +242,29 @@ export const DashboardHeader: React.FC<DashboardHeaderProps> = ({
 };
 
 
+// ── Shared Chart Tooltip ──────────────────────────────────────
+export const ChartTooltip = ({ active, payload, label }: any) => {
+    if (!active || !payload?.length) return null;
 
+    return (
+        <div className="bg-white/95 backdrop-blur-md rounded-xl px-4 py-3 shadow-[0_8px_30px_rgba(0,0,0,0.12)] border border-gray-100/80">
+            {label && (
+                <p className="text-xs font-semibold text-gray-500 mb-1.5 tracking-wide uppercase">{label}</p>
+            )}
+            {payload.map((entry: any, i: number) => (
+                <div key={i} className="flex items-center gap-2 py-0.5">
+                    <span
+                        className="w-2 h-2 rounded-full shrink-0"
+                        style={{ backgroundColor: entry.color || '#22C55E' }}
+                    />
+                    <span className="text-xs text-gray-500">{entry.name}:</span>
+                    <span className="text-sm font-bold text-gray-900">
+                        {typeof entry.value === 'number' ? entry.value.toLocaleString(undefined, { maximumFractionDigits: 2 }) : entry.value}
+                    </span>
+                </div>
+            ))}
+        </div>
+    );
+};
 
-//changes
+export const chartTooltipCursor = { fill: 'rgba(34,197,94,0.04)', radius: 4 };

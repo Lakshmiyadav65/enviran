@@ -22,7 +22,9 @@ import {
 import {
     DetailedHeader,
     ChartCard,
-    ChartModal
+    ChartModal,
+    ChartTooltip,
+    chartTooltipCursor
 } from "../components/DashboardComponents";
 import dashboardService from "../lib/dashboardService";
 
@@ -230,11 +232,7 @@ const DetailedImpactCategories: React.FC = () => {
                         tick={<WrappedTickY />}
                         width={180}
                     />
-                    <Tooltip
-                        formatter={(value: any) => {
-                            return [`${Number(value).toLocaleString()}`, 'Value'];
-                        }}
-                    />
+                    <Tooltip content={<ChartTooltip />} cursor={chartTooltipCursor} />
                     <Legend verticalAlign="bottom" align="center" iconType="square" iconSize={10} wrapperStyle={{ fontSize: '10px', fontWeight: 'bold', paddingTop: '20px' }} />
                     <Bar dataKey="value" radius={[0, 4, 4, 0]} name="Impact Score" barSize={22}>
                         {impactData.map((_, index) => (
@@ -268,7 +266,7 @@ const DetailedImpactCategories: React.FC = () => {
                                 interval={0}
                             />
                             <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: '#4B5563', fontWeight: 500 }} tickFormatter={formatYAxis} />
-                            <Tooltip labelFormatter={(_: any, p: any) => p?.[0]?.payload?.name || _} />
+                            <Tooltip content={<ChartTooltip />} cursor={chartTooltipCursor} />
                             <Legend verticalAlign="bottom" align="center" iconType="square" iconSize={10} wrapperStyle={{ fontSize: '10px', fontWeight: 'bold', paddingTop: '10px' }} />
                             <Bar dataKey="gwp" fill="#1A5D1A" radius={[4, 4, 0, 0]} name="GWP" barSize={18} />
                             <Bar dataKey="ap" fill="#52C41A" radius={[4, 4, 0, 0]} name="Acidification" barSize={18} />

@@ -19,7 +19,9 @@ import {
 import {
     DetailedHeader,
     ChartCard,
-    ChartModal
+    ChartModal,
+    ChartTooltip,
+    chartTooltipCursor
 } from "../components/DashboardComponents";
 import dashboardService from "../lib/dashboardService";
 
@@ -174,7 +176,7 @@ const DetailedWasteEmission: React.FC = () => {
                     <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 11, fill: '#4B5563', fontWeight: 500 }} interval={0} />
                     <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: '#4B5563', fontWeight: 500 }}
                         tickFormatter={(value) => value >= 1000 ? `${(value / 1000).toFixed(0)}k` : value} />
-                    <Tooltip cursor={{ fill: '#F9FAFB' }} />
+                    <Tooltip content={<ChartTooltip />} cursor={chartTooltipCursor} />
                     <Legend verticalAlign="top" align="center" iconType="square" iconSize={10} wrapperStyle={{ fontSize: '11px', fontWeight: 'bold', paddingBottom: '10px' }} />
                     <Bar dataKey="generated" fill="#52C41A" radius={[4, 4, 0, 0]} barSize={isModal ? 50 : 30} name="Waste Generated (kg)" />
                     <Bar dataKey="emission" fill="#B3E699" radius={[4, 4, 0, 0]} barSize={isModal ? 50 : 30} name="Emission (kg CO₂e)" />

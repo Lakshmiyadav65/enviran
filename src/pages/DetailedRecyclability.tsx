@@ -23,7 +23,9 @@ import {
 import {
     DetailedHeader,
     ChartCard,
-    ChartModal
+    ChartModal,
+    ChartTooltip,
+    chartTooltipCursor
 } from "../components/DashboardComponents";
 import dashboardService from "../lib/dashboardService";
 import { getMaterialsMaterialTypeDropdown } from "../lib/ecoInventService";
@@ -284,7 +286,7 @@ const DetailedRecyclability: React.FC = () => {
                     <XAxis dataKey="displayName" axisLine={false} tickLine={false} tick={<WrappedTick />} interval={0} />
                     <YAxis yAxisId="left" axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: '#4B5563', fontWeight: 500 }} tickFormatter={formatYAxis} />
                     <YAxis yAxisId="right" orientation="right" axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: '#4B5563', fontWeight: 500 }} domain={[0, 100]} tickFormatter={(v) => `${v}%`} />
-                    <Tooltip labelFormatter={(_: any, p: any) => p?.[0]?.payload?.name || _} />
+                    <Tooltip content={<ChartTooltip />} cursor={chartTooltipCursor} />
                     <Legend verticalAlign="top" align="center" iconType="square" iconSize={10} wrapperStyle={{ fontSize: '11px', fontWeight: 'bold', paddingBottom: '10px' }} />
                     <Bar yAxisId="left" dataKey="total" fill="#52C41A" radius={[4, 4, 0, 0]} barSize={isModal ? 40 : 20} name="Total Material Used (kg)" />
                     <Bar yAxisId="left" dataKey="recycled" fill="#B3E699" radius={[4, 4, 0, 0]} barSize={isModal ? 40 : 20} name="Recycled Content (kg)" />
@@ -332,7 +334,7 @@ const DetailedRecyclability: React.FC = () => {
                     <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#F1F3F5" />
                     <XAxis dataKey="displayName" axisLine={false} tickLine={false} tick={<WrappedTick />} interval={0} />
                     <YAxis hide={true} domain={[0, 110]} />
-                    <Tooltip content={<CustomTooltip />} cursor={{ fill: '#F9FAFB' }} />
+                    <Tooltip content={<ChartTooltip />} cursor={chartTooltipCursor} />
                     <Legend verticalAlign="top" align="center" iconType="square" iconSize={10} wrapperStyle={{ fontSize: '11px', fontWeight: 'bold', paddingBottom: '10px' }} />
                     <Bar dataKey="emissionNorm" fill="#52C41A" radius={[4, 4, 0, 0]} barSize={isModal ? 30 : 16} name="CO₂ Emission" />
                     <Bar dataKey="factorNorm" fill="#B3E699" radius={[4, 4, 0, 0]} barSize={isModal ? 30 : 16} name="Emission Factor" />

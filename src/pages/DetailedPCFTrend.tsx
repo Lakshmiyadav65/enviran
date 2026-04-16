@@ -23,7 +23,9 @@ import {
 import {
     DetailedHeader,
     ChartCard,
-    ChartModal
+    ChartModal,
+    ChartTooltip,
+    chartTooltipCursor
 } from "../components/DashboardComponents";
 import dashboardService from "../lib/dashboardService";
 
@@ -361,13 +363,7 @@ const DetailedPCFTrend: React.FC = () => {
                     />
                     <YAxis yAxisId="left" axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: '#4B5563', fontWeight: 500 }} tickFormatter={formatYAxis} />
                     <YAxis yAxisId="right" orientation="right" axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: '#4B5563', fontWeight: 500 }} tickFormatter={(v) => `${v.toFixed(1)}%`} />
-                    <Tooltip
-                        labelFormatter={(_: any, p: any) => p?.[0]?.payload?.name || _}
-                        formatter={(value: any, name: any) => {
-                            if (name === "% Reduction") return [`${Number(value).toFixed(2)}%`, name];
-                            return [Number(value).toLocaleString(), name];
-                        }}
-                    />
+                    <Tooltip content={<ChartTooltip />} cursor={chartTooltipCursor} />
                     <Legend
                         verticalAlign="top"
                         align="center"
@@ -414,7 +410,7 @@ const DetailedPCFTrend: React.FC = () => {
                         height={70}
                     />
                     <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: '#4B5563', fontWeight: 500 }} tickFormatter={formatYAxis} />
-                    <Tooltip labelFormatter={(_: any, p: any) => p?.[0]?.payload?.name || _} formatter={(value: any) => [Number(value).toLocaleString() + ' kg CO₂e', 'Actual Emission']} />
+                    <Tooltip content={<ChartTooltip />} cursor={chartTooltipCursor} />
                     <Legend verticalAlign="bottom" align="center" iconType="square" iconSize={10} wrapperStyle={{ fontSize: '10px', fontWeight: 'bold', paddingTop: '10px' }} />
                     <Bar dataKey="actual" fill="#52C41A" radius={[4, 4, 0, 0]} name="Actual Emission (kg CO₂e)" maxBarSize={50} />
                 </BarChart>
@@ -447,7 +443,7 @@ const DetailedPCFTrend: React.FC = () => {
                     <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#F1F3F5" />
                     <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: '#4B5563', fontWeight: 500 }} />
                     <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: '#4B5563', fontWeight: 500 }} tickFormatter={formatYAxis} />
-                    <Tooltip formatter={(value: any) => [Number(value).toLocaleString() + ' kg CO₂e', 'Forecasted Emission']} />
+                    <Tooltip content={<ChartTooltip />} />
                     <Legend verticalAlign="bottom" align="center" iconType="square" iconSize={10} wrapperStyle={{ fontSize: '10px', fontWeight: 'bold', paddingTop: '20px' }} />
                     <Bar dataKey="emission" fill="#74D14C" radius={[4, 4, 0, 0]} name="Forecasted Emission (kg CO₂e)" maxBarSize={60} />
                 </BarChart>
