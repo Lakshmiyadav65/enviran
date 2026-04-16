@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { DatePicker } from "antd";
 import {
   Factory,
   Package,
@@ -416,7 +417,8 @@ const ManufacturerDashboard: React.FC = () => {
   const navigate = useNavigate();
   const firstName = user?.name?.split(" ")[0] || "Manufacturer";
   const [expandedSupplier, setExpandedSupplier] = useState<string | null>(null);
-  const [dateRange, setDateRange] = useState<"month" | "quarter" | "ytd" | "custom">("month");
+  const [dateRange, setDateRange] = useState<"month" | "quarter" | "custom">("month");
+  const [customDates, setCustomDates] = useState<[any, any] | null>(null);
 
   const totalScope = scopeData.reduce((sum, s) => sum + s.value, 0);
   const totalLifecycle = lifecycleBreakdown.reduce((sum, l) => sum + l.value, 0);
@@ -539,7 +541,7 @@ const ManufacturerDashboard: React.FC = () => {
             {/* Date range + facility + export controls */}
             <div className="flex items-center gap-2 flex-wrap">
               <div className="flex items-center bg-white/15 backdrop-blur-sm border border-white/20 rounded-xl p-1">
-                {(["month", "quarter", "ytd", "custom"] as const).map((r) => (
+                {(["month", "quarter", "custom"] as const).map((r) => (
                   <button
                     key={r}
                     onClick={() => setDateRange(r)}
@@ -547,10 +549,21 @@ const ManufacturerDashboard: React.FC = () => {
                       dateRange === r ? "bg-white text-green-700 shadow" : "text-white/80 hover:text-white"
                     }`}
                   >
-                    {r === "month" ? "Month" : r === "quarter" ? "Quarter" : r === "ytd" ? "YTD" : "Custom"}
+                    {r === "month" ? "Month" : r === "quarter" ? "Quarter" : "Custom"}
                   </button>
                 ))}
               </div>
+
+              {dateRange === "custom" && (
+                <DatePicker.RangePicker
+                  value={customDates}
+                  onChange={(dates) => setCustomDates(dates as [any, any] | null)}
+                  size="small"
+                  className="!bg-white/15 !backdrop-blur-sm !border-white/20 !rounded-xl [&_.ant-picker-input>input]:!text-white [&_.ant-picker-input>input::placeholder]:!text-white/60 [&_.ant-picker-separator]:!text-white/80 [&_.ant-picker-suffix]:!text-white/80 [&_.ant-picker-clear]:!text-white/80 [&_.ant-picker-active-bar]:!bg-white"
+                  suffixIcon={<Calendar className="w-3.5 h-3.5 text-white/80" />}
+                />
+              )}
+
               <button className="bg-white/15 backdrop-blur-sm border border-white/20 rounded-xl text-xs font-semibold text-white px-3 py-2 hover:bg-white/20 flex items-center gap-1.5">
                 <Download className="w-3.5 h-3.5" /> Export
               </button>

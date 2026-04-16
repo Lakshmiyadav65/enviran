@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import {
     ArrowUpRight,
     ArrowDownRight,
@@ -10,8 +10,10 @@ import {
     ExternalLink,
     Maximize,
     X,
-    ChevronLeft
+    ChevronLeft,
+    Calendar
 } from "lucide-react";
+import { DatePicker } from "antd";
 import type { LucideIcon } from "lucide-react";
 
 interface StatCardProps {
@@ -172,16 +174,28 @@ export const DetailedHeader: React.FC<{
     );
 };
 
-export const DashboardHeader: React.FC = () => {
+interface DashboardHeaderProps {
+    dateRange: "month" | "quarter" | "custom";
+    onDateRangeChange: (range: "month" | "quarter" | "custom") => void;
+    customDates?: [any, any] | null;
+    onCustomDatesChange?: (dates: [any, any] | null) => void;
+}
+
+export const DashboardHeader: React.FC<DashboardHeaderProps> = ({
+    dateRange,
+    onDateRangeChange,
+    customDates,
+    onCustomDatesChange,
+}) => {
     return (
-        <div className="relative overflow-hidden rounded-2xl mb-6 bg-gradient-to-r from-[#1A5D1A] via-[#2E8B2E] to-[#52C41A] p-8 shadow-lg">
+        <div className="relative overflow-hidden rounded-2xl mb-6 bg-gradient-to-r from-[#1A5D1A] via-[#2E8B2E] to-[#52C41A] p-6 shadow-lg">
             {/* Decorative circles */}
             <div className="absolute -top-6 -right-6 w-32 h-32 bg-white/10 rounded-full" />
             <div className="absolute -bottom-8 -left-8 w-40 h-40 bg-white/5 rounded-full" />
             <div className="absolute top-1/2 right-1/3 w-20 h-20 bg-white/5 rounded-full" />
 
-            <div className="relative flex items-center justify-between">
-                <div className="flex items-center gap-5">
+            <div className="relative flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                <div className="flex items-center gap-4">
                     <div className="bg-white/20 backdrop-blur-sm p-3.5 rounded-2xl border border-white/20">
                         <Leaf className="w-7 h-7 text-white" />
                     </div>
@@ -190,10 +204,36 @@ export const DashboardHeader: React.FC = () => {
                         <p className="text-sm text-green-100 mt-1">Comprehensive carbon footprint metrics across product lifecycle</p>
                     </div>
                 </div>
-                <button className="flex items-center gap-2 px-5 py-2.5 bg-white text-green-700 rounded-xl text-sm font-bold hover:bg-green-50 transition-colors shadow-md cursor-pointer">
-                    <Download className="w-4 h-4" />
-                    Export Report
-                </button>
+
+                <div className="flex items-center gap-2 flex-wrap">
+                    <div className="flex items-center bg-white/15 backdrop-blur-sm border border-white/20 rounded-xl p-1">
+                        {(["month", "quarter", "custom"] as const).map((r) => (
+                            <button
+                                key={r}
+                                onClick={() => onDateRangeChange(r)}
+                                className={`text-xs font-semibold px-3 py-1.5 rounded-lg transition-all ${
+                                    dateRange === r ? "bg-white text-green-700 shadow" : "text-white/80 hover:text-white"
+                                }`}
+                            >
+                                {r === "month" ? "Month" : r === "quarter" ? "Quarter" : "Custom"}
+                            </button>
+                        ))}
+                    </div>
+
+                    {dateRange === "custom" && (
+                        <DatePicker.RangePicker
+                            value={customDates}
+                            onChange={(dates) => onCustomDatesChange?.(dates as [any, any] | null)}
+                            size="small"
+                            className="!bg-white/15 !backdrop-blur-sm !border-white/20 !rounded-xl [&_.ant-picker-input>input]:!text-white [&_.ant-picker-input>input::placeholder]:!text-white/60 [&_.ant-picker-separator]:!text-white/80 [&_.ant-picker-suffix]:!text-white/80 [&_.ant-picker-clear]:!text-white/80 [&_.ant-picker-active-bar]:!bg-white"
+                            suffixIcon={<Calendar className="w-3.5 h-3.5 text-white/80" />}
+                        />
+                    )}
+
+                    <button className="bg-white/15 backdrop-blur-sm border border-white/20 rounded-xl text-xs font-semibold text-white px-3 py-2 hover:bg-white/20 flex items-center gap-1.5">
+                        <Download className="w-3.5 h-3.5" /> Export
+                    </button>
+                </div>
             </div>
         </div>
     );

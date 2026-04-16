@@ -59,7 +59,9 @@ const Dashboard: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const [expandedChart, setExpandedChart] = useState<string | null>(null);
-  const [timePeriod, setTimePeriod] = useState<string>("monthly");
+  const [dateRange, setDateRange] = useState<"month" | "quarter" | "custom">("month");
+  const [customDates, setCustomDates] = useState<[any, any] | null>(null);
+  const timePeriod = dateRange === "month" ? "monthly" : dateRange === "quarter" ? "quarterly" : "monthly";
   const { canViewDashboard, loading: permissionsLoading } = useDashboardPermissions();
 
   // Client State
@@ -842,7 +844,12 @@ const Dashboard: React.FC = () => {
             Back to Overview
           </button>
         )}
-        <DashboardHeader />
+        <DashboardHeader
+          dateRange={dateRange}
+          onDateRangeChange={setDateRange}
+          customDates={customDates}
+          onCustomDatesChange={setCustomDates}
+        />
 
         {/* Client Selection Dropdown - hidden when client is already selected from SuperAdmin */}
         {!isFromSuperAdmin && (
@@ -879,20 +886,6 @@ const Dashboard: React.FC = () => {
           </div>
         )}
 
-        {/* Time Period Filter */}
-        <div className="flex justify-end mb-4">
-          <Select
-            value={timePeriod}
-            onChange={(value) => setTimePeriod(value)}
-            size="middle"
-            style={{ width: 160 }}
-            options={[
-              { value: "monthly", label: "Monthly" },
-              { value: "quarterly", label: "Quarterly" },
-              { value: "yearly", label: "Yearly" },
-            ]}
-          />
-        </div>
 
         {/* Stats Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
