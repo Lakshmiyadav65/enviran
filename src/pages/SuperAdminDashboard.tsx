@@ -29,6 +29,7 @@ import {
   Legend,
 } from "recharts";
 import { useAuth } from "../contexts/AuthContext";
+import { ChartTooltip, chartTooltipCursor } from "../components/DashboardComponents";
 import dashboardService from "../lib/dashboardService";
 
 interface Client {
@@ -267,7 +268,7 @@ const SuperAdminDashboard: React.FC = () => {
                       <Cell key={`cell-${index}`} fill={entry.color} />
                     ))}
                   </Pie>
-                  <Tooltip />
+                  <Tooltip content={<ChartTooltip />} />
                   <Legend
                     verticalAlign="bottom"
                     iconType="circle"
@@ -299,7 +300,7 @@ const SuperAdminDashboard: React.FC = () => {
                       <Cell key={`cell-${index}`} fill={entry.color} />
                     ))}
                   </Pie>
-                  <Tooltip />
+                  <Tooltip content={<ChartTooltip />} />
                   <Legend
                     verticalAlign="bottom"
                     iconType="circle"
@@ -332,7 +333,7 @@ const SuperAdminDashboard: React.FC = () => {
                     tick={{ fontSize: 10, fill: "#4B5563", fontWeight: 500 }}
                     width={100}
                   />
-                  <Tooltip formatter={(value: any) => [`${value} kg CO₂e`, "Emission"]} />
+                  <Tooltip content={<ChartTooltip />} cursor={chartTooltipCursor} />
                   <Bar dataKey="emission" fill="#52C41A" radius={[0, 4, 4, 0]} barSize={16} />
                 </BarChart>
               </ResponsiveContainer>
