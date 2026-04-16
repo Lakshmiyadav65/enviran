@@ -522,6 +522,7 @@ const ManufacturerDashboard: React.FC = () => {
         <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-[#1A5D1A] via-[#2E8B2E] to-[#52C41A] p-6 shadow-lg">
           <div className="absolute -top-6 -right-6 w-32 h-32 bg-white/10 rounded-full" />
           <div className="absolute -bottom-8 -left-8 w-40 h-40 bg-white/5 rounded-full" />
+          <div className="absolute top-1/2 right-1/3 w-20 h-20 bg-white/5 rounded-full" />
 
           <div className="relative flex flex-col md:flex-row md:items-center md:justify-between gap-4">
             <div className="flex items-center gap-4">
