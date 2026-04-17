@@ -143,7 +143,7 @@ const MANUALS_SUPPLIER = [
 
 const ALL_SEARCHABLE = [
     ...POPULAR_ARTICLES.map(a => ({ title: a.title, path: a.path, type: a.tag })),
-    ...CATEGORIES.map(c => ({ title: c.title, path: c.id === 'supplier' ? '/supplier-questionnaire' : c.id === 'manufacturer' ? '/manufacturer-questionnaire' : c.id === 'env' ? '/article-what-is-enviguide' : c.id === 'pcf' ? '/manuals-pcf' : '#', type: 'Category' })),
+    ...CATEGORIES.map(c => ({ title: c.title, path: c.id === 'supplier' ? '/knowledge-base/supplier-questionnaire' : c.id === 'manufacturer' ? '/knowledge-base/manufacturer-questionnaire' : c.id === 'env' ? '/knowledge-base/article-what-is-enviguide' : c.id === 'pcf' ? '/knowledge-base/manuals-pcf' : '#', type: 'Category' })),
     ...MANUALS_ADMIN,
     ...MANUALS_MANUFACTURER,
     ...MANUALS_SUPPLIER,

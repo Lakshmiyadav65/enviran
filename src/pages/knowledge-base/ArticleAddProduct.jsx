@@ -166,9 +166,9 @@ export default function ArticleAddProduct() {
                         <p className={styles.body}>Before adding a product, ensure the following steps are already completed:</p>
                         <div className={styles.flowSummaryBox}>
                             {[
-                                { icon: '🏭', label: 'Manufacturer is created', doc: 'Doc #01', route: '/admin-article-create-manufacturer' },
-                                { icon: '🔑', label: 'Manufacturer login credentials are shared', doc: 'Doc #02', route: '/admin-article-create-new-user' },
-                                { icon: '🔐', label: 'Manufacturer authorization and permissions are assigned', doc: 'Doc #03', route: '/admin-article-manage-authorizations' },
+                                { icon: '🏭', label: 'Manufacturer is created', doc: 'Doc #01', route: '/knowledge-base/admin-article-create-manufacturer' },
+                                { icon: '🔑', label: 'Manufacturer login credentials are shared', doc: 'Doc #02', route: '/knowledge-base/admin-article-create-new-user' },
+                                { icon: '🔐', label: 'Manufacturer authorization and permissions are assigned', doc: 'Doc #03', route: '/knowledge-base/admin-article-manage-authorizations' },
                             ].map((pre, i) => (
                                 <div key={i} className={styles.flowSummaryStep}>
                                     <div className={styles.flowSummaryNum}>{i + 1}</div>
