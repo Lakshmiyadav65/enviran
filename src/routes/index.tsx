@@ -60,6 +60,35 @@ import PCFRequestEdit from "../pages/PCFRequestEdit";
 import TaskView from "../pages/TaskView";
 import ReportView from "../pages/ReportView";
 
+// Knowledge Base (public docs site)
+import KnowledgeBaseLayout from "../pages/knowledge-base/KnowledgeBaseLayout";
+import KBDashboard from "../pages/knowledge-base/Dashboard";
+import KBSupport from "../pages/knowledge-base/Support";
+import KBHelpCentre from "../pages/knowledge-base/HelpCentre";
+import KBSupplierQuestionnaire from "../pages/knowledge-base/SupplierQuestionnaire";
+import KBManufacturerQuestionnaire from "../pages/knowledge-base/ManufacturerQuestionnaire";
+import KBArticleWhatIsEnviguide from "../pages/knowledge-base/ArticleWhatIsEnviguide";
+import KBArticlePlatformWalkthrough from "../pages/knowledge-base/ArticlePlatformWalkthrough";
+import KBManualsChoice from "../pages/knowledge-base/ManualsChoice";
+import KBAdminManuals from "../pages/knowledge-base/AdminManuals";
+import KBManufacturerManuals from "../pages/knowledge-base/ManufacturerManuals";
+import KBSupplierManuals from "../pages/knowledge-base/SupplierManuals";
+import KBArticleGetAccess from "../pages/knowledge-base/ArticleGetAccess";
+import KBArticleAddProduct from "../pages/knowledge-base/ArticleAddProduct";
+import KBArticleCreatePCFRequest from "../pages/knowledge-base/ArticleCreatePCFRequest";
+import KBArticlePCFWorkflow from "../pages/knowledge-base/ArticlePCFWorkflow";
+import KBArticleOwnEmissions from "../pages/knowledge-base/ArticleOwnEmissions";
+import KBArticleComponentMaster from "../pages/knowledge-base/ArticleComponentMaster";
+import KBArticleDocumentMaster from "../pages/knowledge-base/ArticleDocumentMaster";
+import KBArticleSupplierAccess from "../pages/knowledge-base/ArticleSupplierAccess";
+import KBArticleCreateManufacturer from "../pages/knowledge-base/ArticleCreateManufacturer";
+import KBArticleCreateNewUser from "../pages/knowledge-base/ArticleCreateNewUser";
+import KBArticleManageAuthorizations from "../pages/knowledge-base/ArticleManageAuthorizations";
+import KBArticleAdminPCFWorkflow from "../pages/knowledge-base/ArticleAdminPCFWorkflow";
+import KBArticleDataConfiguration from "../pages/knowledge-base/ArticleDataConfiguration";
+import KBArticleMasterDataSetup from "../pages/knowledge-base/ArticleMasterDataSetup";
+import KBArticleEcoInventFactors from "../pages/knowledge-base/ArticleEcoInventFactors";
+
 // Detailed Dashboard Pages
 import DetailedLifeCycle from "../pages/DetailedLifeCycle";
 import DetailedSupplierEmission from "../pages/DetailedSupplierEmission";
@@ -115,6 +144,40 @@ export const router = createBrowserRouter([
   {
     path: "/supplier-onboarding",
     element: <PublicSupplierOnboarding />,
+  },
+  // Public Knowledge Base (docs, manuals, help centre, support)
+  {
+    path: "/knowledge-base",
+    element: <KnowledgeBaseLayout />,
+    children: [
+      { index: true, element: <KBDashboard /> },
+      { path: "support", element: <KBSupport /> },
+      { path: "help-centre", element: <KBHelpCentre /> },
+      { path: "supplier-questionnaire", element: <KBSupplierQuestionnaire /> },
+      { path: "manufacturer-questionnaire", element: <KBManufacturerQuestionnaire /> },
+      { path: "article-what-is-enviguide", element: <KBArticleWhatIsEnviguide /> },
+      { path: "article-platform-walkthrough", element: <KBArticlePlatformWalkthrough /> },
+      { path: "manuals-pcf", element: <KBManualsChoice /> },
+      { path: "manuals-admin", element: <KBAdminManuals /> },
+      { path: "manuals-manufacturer", element: <KBManufacturerManuals /> },
+      { path: "manuals-supplier", element: <KBSupplierManuals /> },
+      { path: "article-get-access", element: <KBArticleGetAccess /> },
+      { path: "article-add-product", element: <KBArticleAddProduct /> },
+      { path: "article-create-pcf-request", element: <KBArticleCreatePCFRequest /> },
+      { path: "article-pcf-workflow", element: <KBArticlePCFWorkflow /> },
+      { path: "article-own-emissions", element: <KBArticleOwnEmissions /> },
+      { path: "article-component-master", element: <KBArticleComponentMaster /> },
+      { path: "article-document-master", element: <KBArticleDocumentMaster /> },
+      { path: "article-supplier-access", element: <KBArticleSupplierAccess /> },
+      { path: "admin-article-create-manufacturer", element: <KBArticleCreateManufacturer /> },
+      { path: "admin-article-create-new-user", element: <KBArticleCreateNewUser /> },
+      { path: "admin-article-manage-authorizations", element: <KBArticleManageAuthorizations /> },
+      { path: "admin-article-add-product", element: <KBArticleAddProduct /> },
+      { path: "admin-article-pcf-workflow", element: <KBArticleAdminPCFWorkflow /> },
+      { path: "admin-article-data-config", element: <KBArticleDataConfiguration /> },
+      { path: "admin-article-master-setup", element: <KBArticleMasterDataSetup /> },
+      { path: "admin-article-ecoinvent", element: <KBArticleEcoInventFactors /> },
+    ],
   },
   {
     path: "/",

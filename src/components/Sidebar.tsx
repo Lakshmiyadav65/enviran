@@ -33,6 +33,8 @@ import {
   ChevronLeft,
   ClipboardList,
   Star,
+  BookOpen,
+  LifeBuoy,
 } from "lucide-react";
 import { menuItems } from "../config/menu";
 import { cn } from "../lib/utils";
@@ -382,16 +384,53 @@ const Sidebar: React.FC<SidebarProps> = ({
           )}
         </nav>
 
-        {/* Footer */}
+        {/* Knowledge Base card (hidden when minimized) */}
+        {!isMinimized && (
+          <div className="px-4 pt-3 pb-2 border-t border-slate-700/50">
+            <NavLink
+              to="/knowledge-base/help-centre"
+              className="block p-3 rounded-xl bg-slate-800/60 hover:bg-slate-800 border border-slate-700/50 transition-all duration-200 group"
+            >
+              <div className="flex items-start gap-2.5">
+                <div className="w-8 h-8 flex-shrink-0 rounded-lg bg-green-600/20 flex items-center justify-center">
+                  <BookOpen className="h-4 w-4 text-green-400" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-semibold text-white leading-tight">
+                    Knowledge Base
+                  </p>
+                  <p className="text-xs text-slate-400 mt-1 leading-snug">
+                    Unlock the full potential of EnviGuide with our expert-led documentation.
+                  </p>
+                  <span className="inline-block mt-2 text-xs font-semibold text-green-400 group-hover:text-green-300">
+                    Browse Guides →
+                  </span>
+                </div>
+              </div>
+            </NavLink>
+          </div>
+        )}
+
+        {/* Footer — Help & Support + collapse toggle */}
         <div
           className={cn(
-            "border-t border-slate-700/50 transition-all duration-300 flex items-center",
-            isMinimized ? "p-3 justify-center" : "p-4 justify-end"
+            "border-t border-slate-700/50 transition-all duration-300 flex items-center gap-2",
+            isMinimized ? "p-3 justify-center" : "p-4 justify-between"
           )}
         >
+          {!isMinimized && (
+            <NavLink
+              to="/knowledge-base/support"
+              className="flex items-center gap-2 flex-1 px-3 py-2.5 rounded-xl bg-slate-800/60 hover:bg-slate-800 border border-slate-700/50 text-slate-200 hover:text-white text-xs font-semibold tracking-wide transition-all duration-200"
+            >
+              <LifeBuoy className="h-4 w-4" />
+              HELP &amp; SUPPORT
+            </NavLink>
+          )}
+
           <button
             onClick={toggleMinimized}
-            className="p-2.5 text-slate-400 hover:text-white hover:bg-slate-800 rounded-xl transition-all duration-200"
+            className="p-2.5 text-slate-400 hover:text-white hover:bg-slate-800 rounded-xl transition-all duration-200 flex-shrink-0"
             title={isMinimized ? "Expand sidebar" : "Collapse sidebar"}
           >
             {isMinimized ? (
