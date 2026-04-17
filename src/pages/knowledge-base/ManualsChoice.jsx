@@ -13,7 +13,7 @@ const CHOICES = [
             </svg>
         ),
         color: '#22c55e',
-        path: '/manuals-admin'
+        path: '/knowledge-base/manuals-admin'
     },
     {
         id: 'manufacturer',
@@ -25,7 +25,7 @@ const CHOICES = [
             </svg>
         ),
         color: '#22c55e',
-        path: '/manuals-manufacturer'
+        path: '/knowledge-base/manuals-manufacturer'
     },
     {
         id: 'supplier',
@@ -37,7 +37,7 @@ const CHOICES = [
             </svg>
         ),
         color: '#22c55e',
-        path: '/manuals-supplier'
+        path: '/knowledge-base/manuals-supplier'
     }
 ]
 

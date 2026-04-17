@@ -2,13 +2,13 @@ import { useNavigate } from 'react-router-dom'
 import styles from './ManualsPCF.module.css'
 
 const MANUALS = [
-    { id: 1, title: 'How to Get Access to Enviguide', path: '/article-get-access' },
-    { id: 2, title: 'How to Add a Product to the Product Portfolio', path: '/article-add-product' },
-    { id: 3, title: 'How to Create a PCF Request for a product', path: '/article-create-pcf-request' },
-    { id: 4, title: 'PCF Request Processing Workflow & Admin Actions', path: '/article-pcf-workflow' },
-    { id: 5, title: 'How to Add Own Emissions (Manufacturer Own Emissions Questionnaire)', path: '/article-own-emissions' },
-    { id: 6, title: 'Component Master', path: '/article-component-master' },
-    { id: 7, title: 'Document Master', path: '/article-document-master' },
+    { id: 1, title: 'How to Get Access to Enviguide', path: '/knowledge-base/article-get-access' },
+    { id: 2, title: 'How to Add a Product to the Product Portfolio', path: '/knowledge-base/article-add-product' },
+    { id: 3, title: 'How to Create a PCF Request for a product', path: '/knowledge-base/article-create-pcf-request' },
+    { id: 4, title: 'PCF Request Processing Workflow & Admin Actions', path: '/knowledge-base/article-pcf-workflow' },
+    { id: 5, title: 'How to Add Own Emissions (Manufacturer Own Emissions Questionnaire)', path: '/knowledge-base/article-own-emissions' },
+    { id: 6, title: 'Component Master', path: '/knowledge-base/article-component-master' },
+    { id: 7, title: 'Document Master', path: '/knowledge-base/article-document-master' },
 ]
 
 export default function ManufacturerManuals() {

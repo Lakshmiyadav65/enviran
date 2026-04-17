@@ -101,10 +101,10 @@ const CATEGORIES = [
 ]
 
 const POPULAR_ARTICLES = [
-    { tag: 'Getting Started', title: 'What is Enviguide? — Platform Overview', path: '/article-what-is-enviguide' },
-    { tag: 'Getting Started', title: 'How the Platform Works — Step-by-Step Walkthrough', path: '/article-platform-walkthrough' },
-    { tag: 'Supplier Guide', title: 'How to Fill Out a Supplier Questionnaire', path: '/supplier-questionnaire' },
-    { tag: 'Manufacturer Guide', title: 'Manufacture Own Emission Questionnaire Guidance', path: '/manufacturer-questionnaire' },
+    { tag: 'Getting Started', title: 'What is Enviguide? — Platform Overview', path: '/knowledge-base/article-what-is-enviguide' },
+    { tag: 'Getting Started', title: 'How the Platform Works — Step-by-Step Walkthrough', path: '/knowledge-base/article-platform-walkthrough' },
+    { tag: 'Supplier Guide', title: 'How to Fill Out a Supplier Questionnaire', path: '/knowledge-base/supplier-questionnaire' },
+    { tag: 'Manufacturer Guide', title: 'Manufacture Own Emission Questionnaire Guidance', path: '/knowledge-base/manufacturer-questionnaire' },
 ]
 
 const STATS = [
@@ -116,29 +116,29 @@ const STATS = [
 const POPULAR_SEARCHES = ['API Keys', 'Metric Report', 'Team Roles']
 
 const MANUALS_ADMIN = [
-    { title: 'How to create a Manufacture ?', path: '/admin-article-create-manufacturer', type: 'Admin Manual' },
-    { title: 'How to Create a New User ?', path: '/admin-article-create-new-user', type: 'Admin Manual' },
-    { title: 'Complete Guide to Manage User Authorizations in Enviguide', path: '/admin-article-manage-authorizations', type: 'Admin Manual' },
-    { title: 'How to Add a Product in Enviguide', path: '/admin-article-add-product', type: 'Admin Manual' },
-    { title: 'What a Super Admin must do after a Manufacturer submits a PCF request.', path: '/admin-article-pcf-workflow', type: 'Admin Manual' },
-    { title: 'What is Data Configuration in Enviguide ?', path: '/admin-article-data-config', type: 'Admin Manual' },
-    { title: 'What is Master Data Setup in Enviguide?', path: '/admin-article-master-setup', type: 'Admin Manual' },
-    { title: 'What is EcoInvent Emission Factor in Enviguide ?', path: '/admin-article-ecoinvent', type: 'Admin Manual' },
+    { title: 'How to create a Manufacture ?', path: '/knowledge-base/admin-article-create-manufacturer', type: 'Admin Manual' },
+    { title: 'How to Create a New User ?', path: '/knowledge-base/admin-article-create-new-user', type: 'Admin Manual' },
+    { title: 'Complete Guide to Manage User Authorizations in Enviguide', path: '/knowledge-base/admin-article-manage-authorizations', type: 'Admin Manual' },
+    { title: 'How to Add a Product in Enviguide', path: '/knowledge-base/admin-article-add-product', type: 'Admin Manual' },
+    { title: 'What a Super Admin must do after a Manufacturer submits a PCF request.', path: '/knowledge-base/admin-article-pcf-workflow', type: 'Admin Manual' },
+    { title: 'What is Data Configuration in Enviguide ?', path: '/knowledge-base/admin-article-data-config', type: 'Admin Manual' },
+    { title: 'What is Master Data Setup in Enviguide?', path: '/knowledge-base/admin-article-master-setup', type: 'Admin Manual' },
+    { title: 'What is EcoInvent Emission Factor in Enviguide ?', path: '/knowledge-base/admin-article-ecoinvent', type: 'Admin Manual' },
 ]
 
 const MANUALS_MANUFACTURER = [
-    { title: 'How to Get Access to Enviguide', path: '/article-get-access', type: 'Manufacturer Manual' },
-    { title: 'How to Add a Product to the Product Portfolio', path: '/article-add-product', type: 'Manufacturer Manual' },
-    { title: 'How to Create a PCF Request for a product', path: '/article-create-pcf-request', type: 'Manufacturer Manual' },
-    { title: 'PCF Request Processing Workflow & Admin Actions', path: '/article-pcf-workflow', type: 'Manufacturer Manual' },
-    { title: 'How to Add Own Emissions (Manufacturer Own Emissions Questionnaire)', path: '/article-own-emissions', type: 'Manufacturer Manual' },
-    { title: 'Component Master', path: '/article-component-master', type: 'Manufacturer Manual' },
-    { title: 'Document Master', path: '/article-document-master', type: 'Manufacturer Manual' },
+    { title: 'How to Get Access to Enviguide', path: '/knowledge-base/article-get-access', type: 'Manufacturer Manual' },
+    { title: 'How to Add a Product to the Product Portfolio', path: '/knowledge-base/article-add-product', type: 'Manufacturer Manual' },
+    { title: 'How to Create a PCF Request for a product', path: '/knowledge-base/article-create-pcf-request', type: 'Manufacturer Manual' },
+    { title: 'PCF Request Processing Workflow & Admin Actions', path: '/knowledge-base/article-pcf-workflow', type: 'Manufacturer Manual' },
+    { title: 'How to Add Own Emissions (Manufacturer Own Emissions Questionnaire)', path: '/knowledge-base/article-own-emissions', type: 'Manufacturer Manual' },
+    { title: 'Component Master', path: '/knowledge-base/article-component-master', type: 'Manufacturer Manual' },
+    { title: 'Document Master', path: '/knowledge-base/article-document-master', type: 'Manufacturer Manual' },
 ]
 
 const MANUALS_SUPPLIER = [
-    { title: 'How to get access for the Supplier Questionnaire', path: '/article-supplier-access', type: 'Supplier Manual' },
-    { title: 'Supplier Questionnaire Guidance', path: '/supplier-questionnaire', type: 'Supplier Manual' },
+    { title: 'How to get access for the Supplier Questionnaire', path: '/knowledge-base/article-supplier-access', type: 'Supplier Manual' },
+    { title: 'Supplier Questionnaire Guidance', path: '/knowledge-base/supplier-questionnaire', type: 'Supplier Manual' },
 ]
 
 const ALL_SEARCHABLE = [

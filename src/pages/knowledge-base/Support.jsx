@@ -147,7 +147,7 @@ export default function Support() {
                             <ul className={styles.linksList}>
                                 {[
                                     { icon: 'info', label: 'Frequently Asked Questions' },
-                                    { icon: 'book', label: 'PCF User Manuals', path: '/manuals-pcf' },
+                                    { icon: 'book', label: 'PCF User Manuals', path: '/knowledge-base/manuals-pcf' },
                                     { icon: 'users', label: 'Community Guidelines' },
                                     { icon: 'shield', label: 'Privacy Policy' },
                                 ].map(({ icon, label, path }) => (

@@ -2,7 +2,7 @@ import { useNavigate } from 'react-router-dom'
 import styles from './ManualsPCF.module.css'
 
 const MANUALS = [
-    { id: 1, title: 'How to get access for the Supplier Questionnaire', path: '/article-supplier-access' },
+    { id: 1, title: 'How to get access for the Supplier Questionnaire', path: '/knowledge-base/article-supplier-access' },
     { id: 2, title: 'Uploading Data Evidence & Certificates', path: '#' },
 ]
 
